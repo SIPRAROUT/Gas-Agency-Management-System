@@ -1,0 +1,319 @@
+﻿@{
+    ViewBag.Title = "StockPrice";
+}
+@using GasAgencyManagementProject.Models.Master
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/css/style.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width" />
+    <title>StockPrice</title>
+    <style>
+        .section-title {
+            overflow-y: scroll;
+            height: 250px;
+            width: 100%;
+        }
+
+        td.details-control2 {
+            background: url('../images/details_open.png') no-repeat center center;
+            cursor: pointer;
+        }
+
+        td.details-control2 {
+            background: url('../images/details_open.png') no-repeat center center;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card bg-light">
+                <div>
+                    <h4 class="mb-0">Stock Master</h4>
+                </div>
+                <div class="tabs">
+                    @{
+                        Tbl_Mstr_Page mm = (Tbl_Mstr_Page)ViewData["PERMISSIONREAD"];
+                        Tbl_Mstr_Page mw = (Tbl_Mstr_Page)ViewData["PERMISSION"];
+                        bool canRead = mm.PERMISSION;
+                        bool canWrite = mw.PERMISSION;
+                    }
+                    @if (canRead && canWrite)
+                    {
+                        <ul class="nav nav-tabs" id="myTabs">
+                            <li class="nav-item">
+                                <a class="nav-link " id="tab2" data-toggle="tab" href="#content2" onclick="toggleTabs('content2')">VIEW</a>
+                            </li>
+                        </ul>
+                    }
+                    else if (canRead)
+                    {
+                        <ul class="nav nav-tabs" id="myTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tab2" data-toggle="tab" href="#content2" onclick="toggleTabs('content2')">VIEW</a>
+                            </li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>You don't have permission to access this page.</p>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12" id="content2" style="display: none;">
+            <!-- View Content -->
+            <div class="card">
+                <div class="card-body">
+                    <!-- Your "View" content -->
+                    <div class="list-container">
+                        <table class="table table-bordered table-striped table-striped  table-hover" id="Tbl_Mstr_StockDetail_View">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:center;"></th>
+                                    <th>SlNo</th>
+                                    @*<th>Product Name</th>*@
+                                    <th style="text-align:left;">Supplier Name</th>
+                                    @*<th>Category Name</th>
+                                    <th>Unit Type</th>
+                                    <th style="text-align:left;">Quantity</th>*@
+                                </tr>
+                            </thead>
+                            <tbody id="Tbl_Mstr_StockDetail_Search">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<link href="~/css/DataTable.css" rel="stylesheet" />
+<script src="~/js/DataTable.js"></script>
+<script>
+  
+
+    function format(data) {
+        debugger;
+        var row = "";
+        console.log("Data object:", data);
+
+        if (data && data.length > 0) {
+            $.each(data, function (ind, item) {
+                var rowNumber = ind + 1;
+                row += '<tr>' +
+                    '<td style="text-align: left;">' + rowNumber + '</td>' +
+                    '<td style="display:none;">' + item.Product_Id + '</td>' +
+                    '<td style="text-align: left;" >' + item.Product_Name + '</td>' +
+                    '<td style="display:none;">' + item.Catgry_Id + '</td>' +
+                    '<td style="text-align: left;">' + item.Catgry_Name + '</td>' +
+                    '<td style="text-align: left;">' + item.Unit_Type + '</td>' +
+                    '<td style="text-align: left;">' + item.Quantity + '</td>' +
+                    '<td style="text-align: left;">' + item.Stock_Price + '</td>' +
+                    '<td style="text-align: left;">' + item.Selling_Price + '</td>' +
+                    '<td><button class="btn btn-danger" onclick="deleteRow(' + ind + ')">Delete</button></td>' +
+                    '</tr>';
+            });
+        } else {
+            console.log("No stock details found:", data);
+            row += "<tr><td colspan='8' style='text-align:center'>No Record Found!!</td></tr>";
+        }
+
+        return "<table class='table table-bordered table-striped' id='tblItem'>" +
+            "<thead><tr class='headergrid' style='background-color: #60bcf1; color: #fff'>" +
+            "<th style='text-align: center;'>SlNo</th>" +
+            "<th style='text-align: center; display:none'>Product Id</th>" +
+            "<th style='text-align: center; display:none'>Category Id</th>" +
+            "<th style='text-align: center;'>Product Name</th>" +
+            "<th style='text-align: center;'>Category Name</th>" +
+            "<th style='text-align: center;'>Unit Type</th>" +
+            "<th style='text-align: center;'>Quantity</th>" +
+            "<th style='text-align: center;'>Stock Price</th>" +
+            "<th style='text-align: center;'>Selling Price</th>" +
+            "<th style='text-align: center;'>Action</th>" +
+            "</tr></thead><tbody id='Tbl_Mstr_StockDetail_View'>" + row + "</tbody></table>";
+    }
+
+
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+    $(document).ready(function ()
+    {
+        $.noConflict();
+        @{
+                 Tbl_Mstr_Page mm1 = ViewData["PERMISSIONREAD"] as Tbl_Mstr_Page;
+                 Tbl_Mstr_Page mw1 = ViewData["PERMISSION"] as Tbl_Mstr_Page;
+
+                bool canRead1 = mm1?.PERMISSION ?? false;
+                bool canWrite1 = mw1?.PERMISSION ?? false;
+        }
+      
+        $(document).on('click', '.details-control2', function () {
+            var tr = $(this).closest('tr');
+            var row = $('#Tbl_Mstr_StockDetail_View').DataTable().row(tr);
+
+            if (row.child.isShown()) {
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+                tr.find('.details-control2').css('background-image', 'url("../images/details_open.png")');
+            } else {
+                // Open this row
+                var stockId = row.data().Stock_Id; // Assuming Stock_Id is the property in your data
+                loadStockDetails(stockId, tr);
+            }
+        });
+
+        function loadStockDetails(stockId, tr) {
+            var row = $('#Tbl_Mstr_StockDetail_View').DataTable().row(tr);
+            $.ajax({
+                url: '/Master/GetStockDetails',
+                type: 'GET',
+                data: { stockId: stockId },
+                success: function (data) {
+                    console.log("Server Response:", data);
+                    row.child(format(data)).show();
+                    tr.addClass('shown');
+                    tr.find('.details-control2').css('background-image', 'url("../images/details_close.png")');
+                },
+
+                error: function (error) {
+                    console.error('Error loading stock details:', error);
+                }
+            });
+        }
+
+
+        // Use JavaScript variables to store the values of canRead and canWrite
+        var canReadAccess = @Html.Raw(Json.Encode(canRead1));
+        var canWriteAccess = @Html.Raw(Json.Encode(canWrite1));
+        // Trigger click event on the "VIEW" tab if read access is enabled
+        if (canReadAccess && !canWriteAccess) {
+            $('#tab2').click();
+        }
+        $('#tab1').click(function () {
+            ClearStock();
+           // $('#ddl_CategoryName').val('').trigger('change');
+        });
+        initializeDataTable();
+        $('form').keypress(function (e) {
+            if (e.which === 13) {
+                e.preventDefault(); // Prevent the default Enter key behavior (e.g., submitting a form)
+                if ($('#btn_cancel').is(':focus')) {
+                    e.stopPropagation();
+                    ClearStock(); // Call ClearSupplier if the clear button is focused
+                }
+                else {
+                    SupplierIUDOnEnter(); // Call SupplierIUDOnEnter for form submission
+                }// Custom function to handle form submission
+            }
+        });
+        BindSelect2();
+        $('#ddl_ProductName').focus();
+        $('#ddl_ProductName').on('change', function () {
+            var productId = $(this).val();
+            // Make an AJAX request to fetch category data based on the selected product
+            $.ajax({
+                type: 'GET',
+                url: '/Master/CasEditCategory', // Replace with your actual endpoint
+                data: { Id: productId },
+                success: function (category) {
+                    // Clear existing options
+                    $('#ddl_CategoryName').empty();
+                    // Add new option based on the received data
+                    if (category != null) {
+                        $('#ddl_CategoryName').append('<option value="' + category.Catgry_Id + '">' + category.Catgry_Name + '</option>');
+                    }
+                },
+                error: function () {
+                    console.error('Error fetching category data.');
+                }
+            });
+        });
+    });
+    var initializeDataTable = function () {
+        if ($.fn.DataTable.isDataTable('#Tbl_Mstr_StockDetail_View')) {
+            $('#Tbl_Mstr_StockDetail_View').DataTable().destroy();
+        }
+        var dt = $('#Tbl_Mstr_StockDetail_View').DataTable(
+            {
+                "processing": true,
+                "responsive": true,
+                "serverSide": true,
+                "searching": true,
+                "paging": true,
+                "sort": true,
+                /*  "ajax": "/Master/GetConsumer",*/
+                "ajax": {
+                    "url": "/Master/GetStock",
+                    "type": "GET"  // Assuming a POST request, change it to "GET" if needed
+                },
+                "columns": [
+                    {
+                        "className": "details-control2",
+                        "orderable": false,
+                        "data": null,
+                        "defaultContent": '<i class="fa fa-plus-square" aria-hidden="true"></i>', // You can use your own icon or text here
+                        "render": function (data, type, row, meta) {
+                            return '<td class="details-control2"></td>';
+                        }
+                    },
+                    {
+                        "className": "text-center",
+                        "data": null,
+                        "orderable": false,
+                        "render": function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    //{ "data": "Product_No" },
+                    //{ "data": "Product_Name" },
+                    {
+                        "className": "text-left",
+                        "data": "Suplr_Name"
+                    },
+                    //{ "data": "Catgry_Name" },
+                    //{ "data": "Unit_Type" },
+                    //{
+                    //    "className": "text-left",
+                    //    "data": "Quantity"
+                    //}
+
+                ],
+                "order": [[0, 'asc']]
+
+            });
+    }
+   
+
+    function toggleTabs(tabId) {
+        debugger;
+        if (tabId === 'content1') {
+            $('#content1').show();
+            $('#ddl_ProductName').focus();
+            $('#content2').hide();
+        } else if (tabId === 'content2') {
+            setTimeout(function () {
+                debugger;
+                if ($("#btn_submit").text() == "UPDATE") {
+                    ClearStock();
+                    $("#btn_submit").text("SUBMIT")
+                }
+                initializeDataTable();
+                $('#content1').hide();
+                debugger;
+                $('#content2').show();
+                debugger;
+            }, 10);
+        }
+    }
+</script>

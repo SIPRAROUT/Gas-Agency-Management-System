@@ -1,0 +1,28 @@
+﻿.spinner-container {
+    position: relative;
+    z-index: 1;
+    height: 100%; /* Ensure the container covers the entire height of the form */
+}
+
+.spinner-border {
+    color: #007bff;
+    position: absolute;
+    top: calc(50% + 12px); /* Adjust the vertical position */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: spin 1s linear infinite; /* Adjust the animation duration for faster spinning */
+}
+
+@keyframes spin {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+.password-container {
+    margin-bottom: 15px; /* Adjust as needed */
+}

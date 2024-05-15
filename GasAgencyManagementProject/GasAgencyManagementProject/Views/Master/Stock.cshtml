@@ -1,0 +1,995 @@
+﻿@{
+    ViewBag.Title = "Stock";
+}
+<link href="~/css/style.css" rel="stylesheet" />
+@using GasAgencyManagementProject.Models.Master
+<link href="~/css/Select2.css" rel="stylesheet" />
+<script src="~/js/select2.js"></script>
+<script src="~/Scripts/jquery.datetimepicker.js"></script>
+<script src="~/Scripts/date.js"></script>
+<head>
+    <style>
+        .btn-primary:focus {
+            box-shadow: 0 0 0 0.25rem rgba(38, 143, 255, 0.5);
+        }
+
+        .btn-danger:focus {
+            box-shadow: 0 0 0 0.25rem rgba(220,  53,  69,  0.5);
+        }
+
+        .section-title {
+            overflow-y: scroll;
+            height: 250px;
+            width: 100%;
+        }
+
+        td.details-control2 {
+            background: url('../images/details_open.png') no-repeat center center;
+            cursor: pointer;
+        }
+
+        td.details-control2 {
+            background: url('../images/details_open.png') no-repeat center center;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card bg-light">
+            <div>
+                <h4 class="mb-0">Stock Master</h4>
+            </div>
+            <div class="tabs">
+                @{
+                    Tbl_Mstr_Page mm = (Tbl_Mstr_Page)ViewData["PERMISSIONREAD"];
+                    Tbl_Mstr_Page mw = (Tbl_Mstr_Page)ViewData["PERMISSION"];
+                    bool canRead = mm.PERMISSION;
+                    bool canWrite = mw.PERMISSION;
+                }
+                @if (canRead && canWrite)
+                {
+                    <ul class="nav nav-tabs" id="myTabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="tab1" data-toggle="tab" href="#content1" onclick="toggleTabs('content1')">ADD</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link " id="tab2" data-toggle="tab" href="#content2" onclick="toggleTabs('content2')">VIEW</a>
+                        </li>
+                    </ul>
+                }
+                else if (canRead)
+                {
+                    <ul class="nav nav-tabs" id="myTabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="tab2" data-toggle="tab" href="#content2" onclick="toggleTabs('content2')">VIEW</a>
+                        </li>
+                    </ul>
+                }
+                else if (canWrite)
+                {
+                    <ul class="nav nav-tabs" id="myTabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="tab1" data-toggle="tab" href="#content1" onclick="toggleTabs('content1')">ADD</a>
+                        </li>
+                    </ul>
+                }
+                else
+                {
+                    <p>You don't have permission to access this page.</p>
+                }
+            </div>
+        </div>
+    </div>
+    @{
+        Tbl_Mstr_Page m = (Tbl_Mstr_Page)ViewData["PERMISSION"];
+        if (m.PERMISSION == true)
+        {
+            <div class="col-lg-12" id="content1">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="basic-form">
+                            <form>
+                                <div class="row">
+                                    <div class="form-group col-md-3">
+                                        <label>Stock Entry No</label>
+                                        <input type="text" class="form-control" placeholder="Stock Entry No" value="@ViewBag.Code" id="txt_StockNo" readonly>
+                                    </div>
+                                    <div class="form-group  col-md-3">
+                                        <label>Supplier Name</label>
+                                        <select class="form-control sel2" id="ddl_SupplierName" tabindex="8">
+                                            <option value="" selected hidden>--Select Supplier Name--</option>
+                                            @{
+                                                List<Tbl_Mstr_Supplier> lstSupplier = (List<Tbl_Mstr_Supplier>)ViewData["Supplier"];
+                                                if (lstSupplier != null)
+                                                {
+                                                    foreach (var item in lstSupplier)
+                                                    {
+                                                        if (item.Suplr_Status == "Active")
+                                                        {
+                                                            <option value="@item.Suplr_Id">@item.Suplr_Name</option>
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>Product Name</label>
+                                        <select class="form-control sel1" id="ddl_ProductName" tabindex="6">
+                                            <option value="" selected hidden>--Select Product Name--</option>
+                                            @{
+                                                List<Tbl_Mstr_Product> lstproduct = (List<Tbl_Mstr_Product>)ViewData["Product"];
+                                                if (lstproduct != null)
+                                                {
+                                                    foreach (var item in lstproduct)
+                                                    {
+                                                        if (item.Product_Status == "Active")
+                                                        {
+                                                            <option value="@item.Product_Id">@item.Product_Name</option>
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group col-md-3">
+                                        <label>Category Name</label>
+                                        <select class="form-control sel3" id="ddl_CategoryName" disabled>
+                                            <option value="" selected hidden>Select</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group col-md-3">
+                                        <label>Unit Type</label>
+                                        <select class="form-control rounded" id="ddl_UnitType" tabindex="9">
+                                            <option value="" selected hidden>--Select Unit Type--</option>
+                                            <option value="Liter">Liter</option>
+                                            <option value="Kilogram">Kilogram</option>
+                                            <option value="Number">Number</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>Stock Quantity</label>
+                                        <input type="text" class="form-control" placeholder="Stock Qunatity" onkeypress="return validateFloatKeyPress(this,event);" id="txt_Quantity" tabindex="10">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>P/Q Purchase Price</label>
+                                        <input type="text" class="form-control" placeholder="P/Q Purchase Price" onkeypress="return validateFloatKeyPress(this,event);" id="txt_StockPrice" tabindex="11">
+                                    </div>
+
+                                    <div class="form-group col-md-3">
+                                        <label>P/Q Selling Price</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="P/Q Selling Price" onkeypress="return validateFloatKeyPress(this,event);" onblur="checkSellingPrice()" id="txt_SellingPrice" tabindex="12">&nbsp;&nbsp;&nbsp;&nbsp;
+                                            <div class="input-group-append">
+                                                <input type="button" class="add btn btn-primary" onclick="add_row()" value="ADD" tabindex="10">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="wrapper">
+                                    <table class="table table-bordered  table-hover table-striped" align='center' id="data_table" border=1>
+                                        <tr>
+                                            <th style="display:none;">Product Id</th>
+                                            <th>Product Name</th>
+                                            <th style="display:none;">Category Id</th>
+                                            <th>Category Name</th>
+                                            <th>Unit Type</th>
+                                            <th>Stock Quantity</th>
+                                            <th>P/Q Purchase Price</th>
+                                            <th>P/Q Selling Price</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <br />
+
+                                <div class="row">
+                                    <div class="form-group col-md-3">
+                                        <label>Entry Date</label>
+                                        <input type="text" class="datepicker form-control" id="dt_EntryDate" placeholder="Entry Date" tabindex="13">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>Expiry Date</label>
+                                        <input type="text" class="datepicker form-control" id="dt_ExpiryDate" placeholder="Expiry Date" tabindex="14">
+                                    </div>
+                                </div>
+                                <div class="row  ">
+                                    <div class="col-md-3 posit">
+                                        <button type="button" class="btn btn-primary" onclick="StockIUD()" id="btn_submit" tabindex="15">SUBMIT</button>
+                                        <button type="button" class="btn btn-danger" id="btn_cancel" onclick="ClearStock()" tabindex="16">CLEAR</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    <div class="col-lg-12" id="content2" style="display: none;">
+        <!-- View Content -->
+        <div class="card">
+            <div class="card-body">
+                <!-- Your "View" content -->
+                <div class="list-container">
+                    <table class="table table-bordered table-striped table-striped  table-hover" id="Tbl_Mstr_StockDetail_View">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center;"></th>
+                                <th>SlNo</th>
+                                <th>Stock Entry No</th>
+                                <th>Supplier Name</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="Tbl_Mstr_StockDetail_Search">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="hdnId" value="0" />
+<link href="~/css/DataTable.css" rel="stylesheet" />
+<script src="~/js/DataTable.js"></script>
+<script>
+    function checkSellingPrice() {
+        var actualCost = parseFloat(document.getElementById("txt_StockPrice").value);
+        var sellingPrice = parseFloat(document.getElementById("txt_SellingPrice").value);
+
+        if (sellingPrice <= actualCost) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Selling price should be greater than the actual cost.'
+            });
+            // You can also choose to reset the selling price field or take other actions.
+        }
+    }
+    function validateFloatKeyPress(el, evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode != 46 && charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        if (charCode == 46 && el.value.indexOf(".") !== -1) {
+            return false;
+        }
+        if (el.value.indexOf(".") !== -1) {
+            //var range = document.selection.createRange();
+            var text = document.getSelection();
+            if (text != "") {
+            }
+            else {
+                var number = el.value.split('.');
+                if (number.length == 2 && number[1].length > 1)
+                    return false;
+            }
+        }
+        return true;
+    }
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            return false;
+        }
+        return true;
+    }
+    function format(data) {
+        debugger;
+        var row = "";
+        console.log("Data object:", data);
+
+        if (data && data.length > 0) {
+            $.each(data, function (ind, item) {
+                var rowNumber = ind + 1;
+                row += '<tr>' +
+                    '<td style="text-align: center;">' + rowNumber + '</td>' +
+                    '<td style="display:none;">' + item.Product_Id + '</td>' +
+                    '<td style="text-align: left;" >' + item.Product_Name + '</td>' +
+                    '<td style="display:none;">' + item.Catgry_Id + '</td>' +
+                    '<td style="text-align: left;">' + item.Catgry_Name + '</td>' +
+                    '<td style="text-align: left;">' + item.Unit_Type + '</td>' +
+                    '<td style="text-align: left;">' + item.Quantity + '</td>' +
+                    '<td style="text-align: left;">' + item.Stock_Price + '</td>' +
+                    '<td style="text-align: left;">' + item.Selling_Price + '</td>' +
+                    '<td><button class="btn btn-danger" onclick="deleteRow(' + ind + ')"><a><i class="fa fa-trash"></i></a></button></td>' +
+                    '</tr>';
+            });
+        }
+        else
+        {
+            console.log("No stock details found:", data);
+            row += "<tr><td colspan='8' style='text-align:center'>No Record Found!!</td></tr>";
+        }
+
+        return "<table class='table table-bordered table-striped' id='tblItem'>" +
+            "<thead><tr class='headergrid' style='background-color: #60bcf1; color: #fff'>" +
+            "<th style='text-align: center;'>SlNo</th>" +
+            "<th style='text-align: center; display:none'>Product Id</th>" +
+            "<th style='text-align: center; display:none'>Category Id</th>" +
+            "<th style='text-align: center;'>Product Name</th>" +
+            "<th style='text-align: center;'>Category Name</th>" +
+            "<th style='text-align: center;'>Unit Type</th>" +
+            "<th style='text-align: center;'>Quantity</th>" +
+            "<th style='text-align: center;'>Stock Price</th>" +
+            "<th style='text-align: center;'>Selling Price</th>" +
+            "<th style='text-align: center;'>Action</th>" +
+            "</tr></thead><tbody id='Tbl_Mstr_StockDetail_View'>" + row + "</tbody></table>";
+    }
+    //function UserEdit_Click(currentrow) {
+    //    debugger;
+    //    $("#tab1").click();
+    //    $("#tab1").attr("class", "nav-link active");
+    //    $("#lipane1").attr("class", "nav-item active");
+    //    $("#tab2").attr("class", "nav-link");
+    //    $("#lipane2").attr("class", "nav-item");
+    //    $("#btncreate").text("Update Group");
+    //    frmUserReset(); //Reset Form
+    //    var $row = $(currentrow).parents('tr'); //Find current row
+    //    var objUsrData = User_dataTable.row($row).data();
+
+    //    document.getElementById("hdnId").value = objUsrData.Group_Id;
+    //    document.getElementById("grpname").innerHTML = objUsrData.Group_Name;
+    //    document.getElementById("txtGroupName").value = objUsrData.Group_Name;
+    //    document.getElementById("lblgroupname").innerHTML = objUsrData.Group_Name;
+    //    document.getElementById("lblNOM").innerHTML = objUsrData.Total_Member;
+
+    //    var tr = $(currentrow).closest('tr');
+    //    var row = User_dataTable.row(tr);
+    //    var rowdata = row.data();
+    //    var row1;
+    //    var count = 0;
+    //    $.each(rowdata.DT_Group, function (ind, item) {
+    //        debugger;
+    //        count = count + 1;
+    //        row1 += "<tr>" +
+    //            "<td style='text-align: center; display:none'>" + item.Mem_Id + "</td><td style='text-align: center;'>" + count +
+    //            "</td><td style='text-align: center;'>" + item.First_Name + "</td><td style='text-align: center;'>" + item.WA_No +
+    //            "</td><td style='text-align:center;'>" + item.Club_Name +
+    //            "</td><td style='text-align:center;'>" + item.Classification +
+    //            "</td><td style='text-align:center;'>" + item.Main_Designation +
+    //            "</td><td style='text-align:center;'>" + item.Membship_Since +
+    //            "</td><td style='text-align:center;'>" + item.Marital_Status +
+
+    //            "</td><td><div class='btn-group' style='text-align: center; '><a style='cursor: pointer;padding: 2px 6px;font-size: 12px;' title='Delete' class='btn btn-danger'  onclick='removerow(this.parentNode.parentNode.parentNode.rowIndex - 1);'><i class='fa fa-trash'></i></a></div></td></tr>";
+
+
+    //    });
+
+    //    //$("#tbl_group tbody").empty();
+    //    $("#tbl_group tbody").append(row1);
+
+
+    //}
+    ////edit onclick
+
+    //function frmUserReset() {
+    //    debugger;
+    //    document.getElementById("frmUser").reset(); //reset all input fields //form tag name
+    //    $('form#frmUser input[type=hidden]').val(''); //clear hidden fields
+
+
+    //}
+
+    $(document).ready(function ()
+    {
+        $.noConflict();
+        @{
+                 Tbl_Mstr_Page mm1 = ViewData["PERMISSIONREAD"] as Tbl_Mstr_Page;
+                 Tbl_Mstr_Page mw1 = ViewData["PERMISSION"] as Tbl_Mstr_Page;
+
+                bool canRead1 = mm1?.PERMISSION ?? false;
+                bool canWrite1 = mw1?.PERMISSION ?? false;
+        }
+        // Example click event handler
+        $(document).on('click', '.details-control2', function () {
+            var tr = $(this).closest('tr');
+            var row = $('#Tbl_Mstr_StockDetail_View').DataTable().row(tr);
+
+            if (row.child.isShown()) {
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+                tr.find('.details-control2').css('background-image', 'url("../images/details_open.png")');
+            } else {
+                // Open this row
+                var stockId = row.data().Stock_Id; // Assuming Stock_Id is the property in your data
+                loadStockDetails(stockId, tr);
+            }
+        });
+
+        function loadStockDetails(stockId, tr) {
+            var row = $('#Tbl_Mstr_StockDetail_View').DataTable().row(tr);
+            $.ajax({
+                url: '/Master/GetStockDetails',
+                type: 'GET',
+                data: { stockId: stockId },
+                success: function (data) {
+                    console.log("Server Response:", data);
+                    row.child(format(data)).show();
+                    tr.addClass('shown');
+                    tr.find('.details-control2').css('background-image', 'url("../images/details_close.png")');
+                },
+
+                error: function (error) {
+                    console.error('Error loading stock details:', error);
+                }
+            });
+        }
+        // Use JavaScript variables to store the values of canRead and canWrite
+        var canReadAccess = @Html.Raw(Json.Encode(canRead1));
+        var canWriteAccess = @Html.Raw(Json.Encode(canWrite1));
+        // Trigger click event on the "VIEW" tab if read access is enabled
+        if (canReadAccess && !canWriteAccess) {
+            $('#tab2').click();
+        }
+        $('#tab1').click(function () {
+            ClearStock();
+           // $('#ddl_CategoryName').val('').trigger('change');
+        });
+        initializeDataTable();
+        $('form').keypress(function (e) {
+            if (e.which === 13) {
+                e.preventDefault(); // Prevent the default Enter key behavior (e.g., submitting a form)
+                if ($('#btn_cancel').is(':focus')) {
+                    e.stopPropagation();
+                    ClearStock(); // Call ClearSupplier if the clear button is focused
+                }
+                else {
+                    SupplierIUDOnEnter(); // Call SupplierIUDOnEnter for form submission
+                }// Custom function to handle form submission
+            }
+        });
+        BindSelect2();
+        $('#ddl_ProductName').focus();
+        $('#ddl_ProductName').on('change', function () {
+            debugger;
+            var productId = $(this).val();
+            // Make an AJAX request to fetch category data based on the selected product
+            $.ajax({
+                type: 'GET',
+                url: '/Master/CasEditCategory', // Replace with your actual endpoint
+                data: { Id: productId },
+                success: function (category) {
+                    // Clear existing options
+                    $('#ddl_CategoryName').empty();
+                    // Add new option based on the received data
+                    if (category != null) {
+                        $('#ddl_CategoryName').append('<option value="' + category.Catgry_Id + '">' + category.Catgry_Name + '</option>');
+                    }
+                },
+                error: function () {
+                    console.error('Error fetching category data.');
+                }
+            });
+        });
+
+    });
+     // Set the default value for the datepicker input
+    var currentDate = new Date();
+    var formattedCurrentDate = currentDate.getDate() + '/' + (currentDate.getMonth() + 1) + '/' + currentDate.getFullYear();
+    $('#dt_EntryDate').val(formattedCurrentDate);
+    //Datepicker
+    $('.datepicker').keydown(function (event) {
+        switch (event.which) {
+            case 13: // Enter key
+                event.preventDefault();
+                var selectedDate = "";
+                selectedDate = $(this).datetimepicker('getValue');
+                // Convert the Date object to a string value in the format of dd/mm/yyyy
+                var dateValue = "";
+                dateValue = $(this).datetimepicker('format', selectedDate, 'd/m/Y');
+                console.log('Enter key pressed. Selected date:', dateValue);
+                // Assign the string value to the textbox
+                $(this).val(dateValue);
+                $(this).datetimepicker('hide');
+                break;
+            // Add more cases for other keys as needed
+        }
+    });
+    $('.datepicker').keydown(function (event) {
+        switch (event.which) {
+            case 32: // Space key
+                event.preventDefault();
+                var selectedDate = $(this).datetimepicker('getValue');
+                // Convert the Date object to a string value in the format of dd/mm/yyyy
+                var dateValue = $(this).datetimepicker('format', selectedDate, 'd/m/Y');
+                console.log('Space key pressed. Selected date:', dateValue);
+                // Assign the string value to the textbox
+                $(this).val(dateValue);
+                $(this).datetimepicker('hide');
+                break;
+            case 13: // Enter key
+                event.preventDefault();
+                var self = $(this),
+                    form = self.parents('form:eq(0)'),
+                    focusable,
+                    next;
+                focusable = form.find('input,a,select,button,textarea').filter(':not([disabled]):not([tabindex="-1"]):visible');
+                next = focusable.eq(focusable.index(this) + 1);
+                if (next.length) {
+                    next.focus();
+                } else {
+                    //form.submit();
+                }
+                return false;
+                break;
+            // Add more cases for other keys as needed
+        }
+    });
+    function BindSelect2() {
+
+        $(".sel1").select2({
+            tags: false,
+            placeholder: "--Select Product Name--",
+            allowClear: true
+        });
+        $(".sel2").select2({
+            tags: false,
+            placeholder: "--Select Supplier Name--",
+            allowClear: true
+        });
+        $(".sel3").select2({
+            tags: false,
+            placeholder: "--Select Category Name--",
+            allowClear: true
+        });
+
+    }
+    // Custom function to handle form submission on Enter key
+    function SupplierIUDOnEnter() {
+        StockIUD();
+    }
+    document.addEventListener('keydown', function (event) {
+        // Check if the pressed key is Escape (key code 27)
+        if (event.key === 'Escape') {
+            ClearStock();
+        }
+    });
+    var initializeDataTable = function () {
+        if ($.fn.DataTable.isDataTable('#Tbl_Mstr_StockDetail_View')) {
+            $('#Tbl_Mstr_StockDetail_View').DataTable().destroy();
+        }
+        var dt = $('#Tbl_Mstr_StockDetail_View').DataTable({
+            "processing": true,
+            "responsive": true,
+            "serverSide": true,
+            "searching": true,
+            "paging": true,
+            "sort": true,
+            "ajax": {
+                "url": "/Master/GetStockPrice",
+                "type": "GET"  // Assuming a POST request, change it to "GET" if needed
+            },
+            "columns": [
+                {
+                    "className": "details-control2",
+                    "orderable": false,
+                    "data": null,
+                    "defaultContent": '<i class="fa fa-plus-square" aria-hidden="true"></i>', // You can use your own icon or text here
+                    "render": function (data, type, row, meta) {
+                        return '<td class="details-control2"></td>';
+                    }
+                },
+                {
+                    "className": "text-center",
+                    "data": null,
+                    "orderable": false,
+                    "render": function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                { "data": "Stock_No" },
+                { "data": "Suplr_Name" },
+                {
+                    "class": "details-control",
+                    "orderable": false,
+                    "data": null,
+                    "render": function (data, type, row) {
+                         return "<div class='btn-group' style='text-align:center;' ><a  id='" + data.Stock_Id + "' onclick='return_id(this.id);' style='cursor:pointer;' title='Edit' class='btn btn-primary action_btn'><i class='jsgrid-button jsgrid-edit-button ti-pencil-alt btn btn-primary color-white'></i></a>" +
+                            "<a id='" + data.Stock_Id + "' onclick='delete_id(this.id);' style='cursor:pointer;' title='Delete' class='btn btn-danger action_btn'><i class='jsgrid-button jsgrid-delete-button ti-trash btn btn-danger  color-white'></i></a></div>";
+
+                    }
+                }
+            ],
+            "order": [[1, 'asc']] ,// Adjusted the order index to match the new column
+            //"drawCallback": function (settings) {
+            //    // Attach click event to the plus icon for details
+            //    $('.details-control2').unbind('click').on('click', function () {
+            //        var tr = $(this).closest('tr');
+            //        var row = dt.row(tr);
+
+            //        if (row.child.isShown()) {
+            //            // This row is already op1`en - close it
+            //            row.child.hide();
+            //            tr.removeClass('shown');
+            //        } else {
+            //            // Open this row
+            //            row.child(format(row.data().DT_Stock)).show();
+            //            tr.addClass('shown');
+            //        }
+            //    });
+            //}
+        });
+    }
+    function toggleTabs(tabId) {
+        debugger;
+        if (tabId === 'content1') {
+            $('#content1').show();
+            $('#ddl_ProductName').focus();
+            $('#content2').hide();
+        } else if (tabId === 'content2') {
+            setTimeout(function () {
+                debugger;
+                if ($("#btn_submit").text() == "UPDATE") {
+                    ClearStock();
+                    $("#btn_submit").text("SUBMIT")
+                }
+                initializeDataTable();
+                $('#content1').hide();
+                debugger;
+                $('#content2').show();
+                debugger;
+            }, 10);
+        }
+    }
+    //UserValidation ALertMsg
+    function StockIUD() {
+        debugger;
+        var ButtonData = $("#btn_submit").text();
+        var action = "";
+        if (ButtonData === "SUBMIT") {
+            action = "INSERT";
+
+        }
+        else {
+            action = "UPDATE";
+        }
+        $('#ddl_ProductName').focus();
+        var Items = [];
+        for (var i = 1; i < document.getElementById("data_table").children[0].children.length; i++) {
+            var item1 = {};
+            item1.Product_Id = document.getElementById("data_table").children[0].children[i].children[0].innerHTML;
+            item1.Product_Name = document.getElementById("data_table").children[0].children[i].children[1].innerHTML;
+            item1.Catgry_Id = document.getElementById("data_table").children[0].children[i].children[2].innerHTML;
+            item1.Catgry_Name = document.getElementById("data_table").children[0].children[i].children[3].innerHTML;
+            item1.Unit_Type = document.getElementById("data_table").children[0].children[i].children[4].innerHTML;
+            item1.Quantity = document.getElementById("data_table").children[0].children[i].children[5].innerHTML;
+            item1.Stock_Price = document.getElementById("data_table").children[0].children[i].children[6].innerHTML;
+            item1.Selling_Price = document.getElementById("data_table").children[0].children[i].children[7].innerHTML;
+            Items.push(item1);
+        }
+        if (ValidateStock() == true) {
+            $.ajax({
+                type: 'post',
+                dataType: 'JSON',
+                url: '../Master/MstrStockIUD',
+                data: {
+                    'Stock_Id': $('#hdnId').val(),
+                    'Stock_No': $('#txt_StockNo').val(),
+                    'Suplr_Id': $('#ddl_SupplierName').val(),
+                    'DT_Stock':Items,
+                    'Entry_Date': $('#dt_EntryDate').val(),
+                    '_Expiry_Date': $('#dt_ExpiryDate').val(),
+                    'Action': action
+                },
+                success: function (res) {
+                    debugger;
+                    if (res == 'Stock Master Inserted Successfully') {
+                        ClearStock();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: res,
+                            didOpen: () => {
+                                // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                setTimeout(() => {
+                                    const okButton = document.querySelector('.swal2-confirm');
+                                    if (okButton) {
+                                        okButton.focus();
+                                    }
+                                }, 0);
+                            },
+                        })
+                    }
+                    else if (res == 'Stock Master Updated Successfully') {
+                        ClearStock();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: res,
+                            didOpen: () => {
+                                // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                setTimeout(() => {
+                                    const okButton = document.querySelector('.swal2-confirm');
+                                    if (okButton) {
+                                        okButton.focus();
+                                    }
+                                }, 0);
+                            },
+                        })
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops',
+                            text: res,
+                            didOpen: () => {
+                                // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                setTimeout(() => {
+                                    const okButton = document.querySelector('.swal2-confirm');
+                                    if (okButton) {
+                                        okButton.focus();
+                                    }
+                                }, 0);
+                            },
+                        })
+                        ClearStock();
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+        }
+    }
+    //UserValidation PopupMsg
+    function ValidateStock() {
+        if ($('#ddl_SupplierName').val() === "") {
+            $('#ddl_SupplierName').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Supplier Name cannot be balnk!!'
+            });
+            return false;
+        }
+        if ($('#dt_EntryDate').val() == "") {
+           //s $('#dt_EntryDate').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Entry Date cannot be blank!!',
+                didClose: () => {
+                    // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                    setTimeout(() => {
+                        const okButton = document.querySelector('.swal2-confirm');
+                        if (okButton) {
+                            okButton.focus();
+                        }
+                        $('#dt_EntryDate').focus();
+                    }, 0);
+                },
+            });
+            return false;
+        }
+        return true;
+    }
+    //ClearUser
+    function ClearStock() {
+        debugger;
+        $.ajax({
+            url: '../Master/AutoStockCode',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                $('#txt_StockNo').val(data);
+            },
+            error: function () {
+                console.log('Error fetching data.');
+            }
+        });
+        $('#ddl_ProductName').val('').trigger('change');
+        $('#ddl_SupplierName').val('').trigger('change');
+        setTimeout(function () {
+            $('#ddl_CategoryName').val('').trigger('change');
+        }, 1000);
+
+        $('#ddl_UnitType').val('');
+        $('#txt_Quantity').val('');
+        $('#txt_StockPrice').val('');
+        $('#txt_SellingPrice').val('');
+        $('#dt_ExpiryDate').val('');
+        $('#btn_submit').text('SUBMIT');
+        $('#ddl_ProductName').focus();
+    }
+    function return_id(par) {
+        debugger;
+        var canEdit = @Html.Raw(Json.Encode(canWrite1));
+        if (!canEdit) {
+            Swal.fire({
+            icon: 'error',
+            title: 'Oops',
+            text: 'YOU HAVE NO PERMISSION FOR EDIT!'
+            });
+            return;
+        }
+        $('#tab1').addClass('active');
+        $('#tab2').removeClass('active').addClass('closed');
+        $('#content1').show();
+        $('#content2').hide();
+        $.ajax(
+            {
+                url: '/Master/StockEdit?Id=' + par, // Replace with your controller and action
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    console.log("Recived data: ", data);
+                    debugger;
+                    $('#hdnId').val(par);
+                    $('#ddl_SupplierName').focus();
+                    $('#txt_StockNo').val(data.Stock_No);
+                    $('#ddl_SupplierName').val(data.Suplr_Id).trigger('change');
+                    $('#dt_EntryDate').val(data.Entry_Date);
+                    $('#dt_ExpiryDate').val(data._Expiry_Date);
+                    $("#btn_submit").text('UPDATE');
+
+                    // Clear existing rows before appending new ones
+                    //$("#data_table tbody").empty();
+
+                    // Construct rows
+                    $.each(data.DT_Stock, function (ind, item) {
+                        console.log("Recived data: ", data);
+                        debugger;
+                        var row = "<tr>" +
+                            '<td style="text-align: center;">' + (ind + 1) + '</td>' +
+                            '<td style="display:none;">' + item.Product_Id + '</td>' +
+                            '<td style="text-align: left;" >' + item.Product_Name + '</td>' +
+                            '<td style="display:none;">' + item.Catgry_Id + '</td>' +
+                            '<td style="text-align: left;">' + item.Catgry_Name + '</td>' +
+                            '<td style="text-align: left;">' + item.Unit_Type + '</td>' +
+                            '<td style="text-align: left;">' + item.Quantity + '</td>' +
+                            '<td style="text-align: left;">' + item.Stock_Price + '</td>' +
+                            '<td style="text-align: left;">' + item.Selling_Price + '</td>' +
+                            '<td><button class="btn btn-danger" onclick="deleteRow(' + ind + ')"><a><i class="fa fa-trash"></i></a></button></td>' +
+                            '</tr>';
+
+                        // Append the row to the table
+                        $("#data_table tbody").append(row);
+                    });
+                },
+                error: function () {
+                    console.log('Error loading data.');
+                }
+            });
+    }
+
+    function delete_id(par) {
+        debugger;
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
+                var stock = {
+                    'Stock_Id': par,
+                    'Action': 'DELETE'
+                };
+                $.ajax({
+                    url: '/Master/MstrStockIUD',
+                    data: JSON.stringify(stock),
+                    type: 'post',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    success: function (res) {
+                        if (res === "Stock Master Deleted Successfully") {
+                            Swal.fire({
+                                icon: 'success',
+                                title: "SUCCESS",
+                                text: ' Stock Data Deleted Successfully'
+                            });
+                            setTimeout(function () {
+                                initializeDataTable();
+                                $('#content1').hide();
+                                $('#content2').show();
+                            }, 10);
+                        }
+                        else if (res === "YOU HAVE NO PERMISSION FOR DELETE!") {
+                            Swal.fire({
+                                icon: 'error',
+                                title: "Opss",
+                                text: res
+                            });
+                        }
+                        else {
+                            alert(res);
+                        }
+                    },
+                    error: function (err) {
+                        debugger;
+                        alert(err);
+                    }
+                });
+            }
+        });
+    }
+
+    var table = document.getElementById("data_table");
+
+
+    function add_row() {
+        debugger;
+        var productNameDropdown = document.getElementById("ddl_ProductName");
+        var CategoryName = document.getElementById("ddl_CategoryName");
+        var UnitType = document.getElementById("ddl_UnitType").value;
+        var Quantity = document.getElementById("txt_Quantity").value;
+        var StockPrice = document.getElementById("txt_StockPrice").value;
+        var SellingPrice = document.getElementById("txt_SellingPrice").value;
+
+
+        // Check if any of the required fields are empty
+        if ($('#ddl_ProductName').val() === "") {
+            $('#ddl_ProductName').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Product Name cannot be blank!!'
+            });
+            return false;
+        }
+        if ($('#txt_Quantity').val() === "") {
+            $('#txt_Quantity').focus();
+
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Quantity cannot be blank!!'
+            });
+            return false;
+        }
+
+        var selectedProductName = productNameDropdown.options[productNameDropdown.selectedIndex].text;
+        var selectedProductId = productNameDropdown.options[productNameDropdown.selectedIndex].value;
+        var selectedCategoryName = CategoryName.options[CategoryName.selectedIndex].text;
+        var selectedCategoryId = CategoryName.options[CategoryName.selectedIndex].value;
+
+        // If the total amount row exists, delete it
+
+        // Insert a new row
+        var row = table.insertRow(table.rows.length);
+        var cell1 = row.insertCell(0);
+        var cell2 = row.insertCell(1);
+        var cell3 = row.insertCell(2);
+        var cell4 = row.insertCell(3);
+        var cell5 = row.insertCell(4);
+        var cell6 = row.insertCell(5);
+        var cell7 = row.insertCell(6);
+        var cell8 = row.insertCell(7);
+        var cell9 = row.insertCell(8);
+
+        cell1.style.display = "none"; // Apply display: none directly to the td element
+        cell1.innerHTML = selectedProductId;
+        cell2.innerHTML = selectedProductName;
+        cell3.style.display = "none";
+        cell3.innerHTML = selectedCategoryId;
+        cell4.innerHTML = selectedCategoryName;
+        cell5.innerHTML = UnitType;
+        cell6.innerHTML = Quantity;
+        cell7.innerHTML = StockPrice;
+        cell8.innerHTML = SellingPrice;
+        cell9.innerHTML =
+            "<a onclick='delete_row(" + (table.rows.length - 1) + ")' style='cursor:pointer;' title='Delete' class='btn btn-danger action_btn'><i class='jsgrid-button jsgrid-delete-button ti-trash btn btn-danger  color-white'></i></a>";
+        clear();
+    }
+
+    function clear() {
+        // Clear the dropdown by setting the selectedIndex to the default option
+        $('#ddl_ProductName').val('').trigger('change');
+        setTimeout(function () {
+            $('#ddl_CategoryName').val('').trigger('change');
+        }, 1000);
+        $('#ddl_UnitType').val('');
+        $('#txt_Quantity').val('');
+        $('#txt_StockPrice').val('');
+        $('#txt_SellingPrice').val('');
+    }
+</script>

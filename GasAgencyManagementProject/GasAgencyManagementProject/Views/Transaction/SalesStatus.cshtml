@@ -1,0 +1,215 @@
+﻿@{
+    ViewBag.Title = "SalesStatus";
+}
+@using GasAgencyManagementProject.Models.Transaction
+@using GasAgencyManagementProject.Models.Master
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/css/style.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width" />
+    <title>SalesStatus</title>
+    <style>
+        .section-title {
+            overflow-y: scroll;
+            height: 250px;
+            width: 100%;
+        }
+
+        td.details-control2 {
+            background: url('../images/details_open.png') no-repeat center center;
+            cursor: pointer;
+        }
+
+        td.details-control2 {
+            background: url('../images/details_open.png') no-repeat center center;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card bg-light">
+                <div>
+                    <h4 class="mb-0">Sales Status</h4>
+                </div>
+                <div class="tabs">
+                    @{
+                        Tbl_Mstr_Page mm = (Tbl_Mstr_Page)ViewData["PERMISSIONREAD"];
+                        Tbl_Mstr_Page mw = (Tbl_Mstr_Page)ViewData["PERMISSION"];
+                        bool canRead = mm.PERMISSION;
+                        bool canWrite = mw.PERMISSION;
+                    }
+                    @if (canRead && canWrite)
+                    {
+                        <ul class="nav nav-tabs" id="myTabs">
+                            <li class="nav-item">
+                                <a class="nav-link " id="tab2" data-toggle="tab" href="#content2" onclick="toggleTabs('content2')">VIEW</a>
+                            </li>
+                        </ul>
+                    }
+                    else if (canRead)
+                    {
+                        <ul class="nav nav-tabs" id="myTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tab2" data-toggle="tab" href="#content2" onclick="toggleTabs('content2')">VIEW</a>
+                            </li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>You don't have permission to access this page.</p>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12" id="content2" style="display: none;">
+            <!-- View Content -->
+            <div class="card">
+                <div class="card-body">
+                    <!-- Your "View" content -->
+                    <div class="list-container">
+                        <table class="table table-bordered table-striped table-striped  table-hover" id="Tbl_Trns_Final_Settlement_View">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:center;">SlNo</th>
+                                    @*<th>Delivery Id</th>*@
+                                    <th>Invoice No</th>
+                                    <th>Consumer Name</th>
+                                    <th>Delivery Name</th>
+                                    <th>Final Payment</th>
+                                    <th>Delivery Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="Tbl_Trns_Final_Settlement_Search">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<link href="~/css/DataTable.css" rel="stylesheet" />
+<script src="~/js/DataTable.js"></script>
+<script>
+   
+
+    $(document).ready(function () {
+        debugger;
+        $.noConflict();
+        @{
+            Tbl_Mstr_Page mm1 = ViewData["PERMISSIONREAD"] as Tbl_Mstr_Page;
+            Tbl_Mstr_Page mw1 = ViewData["PERMISSION"] as Tbl_Mstr_Page;
+
+            bool canRead1 = mm1?.PERMISSION ?? false;
+            bool canWrite1 = mw1?.PERMISSION ?? false;
+        }
+        $(document).on('click', '.details-control2', function () {
+            var tr = $(this).closest('tr');
+            var row = $('#Tbl_Trns_Final_Settlement_View').DataTable().row(tr);
+            if (row.child.isShown()) {
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+                tr.find('.details-control2').css('background-image', 'url("../images/details_open.png")');
+            } else {
+                // Open this row
+                row.child(format(row.data())).show();
+                tr.addClass('shown');
+                tr.find('.details-control2').css('background-image', 'url("../images/details_close.png")');
+            }
+        });
+
+        // Use JavaScript variables to store the values of canRead and canWrite
+        var canReadAccess = @Html.Raw(Json.Encode(canRead1));
+        var canWriteAccess = @Html.Raw(Json.Encode(canWrite1));
+        // Trigger click event on the "VIEW" tab if read access is enabled
+        if (canReadAccess && !canWriteAccess) {
+            $('#tab2').click();
+        }
+
+        // Additional DataTable initialization for Tbl_Trns_Final_Settlement_View
+      initializeFinalSettlementDataTable();
+
+        // Other functionalities and event handlers specific to the new table
+        // ...
+    });
+
+    var initializeFinalSettlementDataTable = function () {
+        debugger;
+        // Destroy existing DataTable if any
+        if ($.fn.DataTable.isDataTable('#Tbl_Trns_Final_Settlement_View')) {
+            $('#Tbl_Trns_Final_Settlement_View').DataTable().destroy();
+        }
+        debugger;
+        // Initialize DataTable
+        var dt = $('#Tbl_Trns_Final_Settlement_View').DataTable({
+           
+            "processing": true,
+            "responsive": true,
+            "serverSide": true,
+            "searching": true,
+            "paging": true,
+            "sort": true,
+            "ajax": {
+                "url": "/Transaction/GetFinalSettlement",
+                "type": "GET"  // Assuming a POST request, change it to "GET" if needed
+            },
+            "columns": [
+                {
+                    "className": "text-center",
+                    "data": null,
+                    "orderable": false,
+                    "render": function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                // Include the columns based on the attributes of Tbl_Trns_Final_Settlement
+               // { "data": "Delivery_Id" },
+                { "data": "Invoice_No" },
+                { "data": "Consumer_Name" },
+                { "data": "Delivery_Name" },
+                {
+                    "data": "Final_Payment"
+                },
+                {
+                    "className": "text-left",
+                    "data": "Delivery_Status"
+                }
+                // Add more columns based on the attributes of Tbl_Trns_Final_Settlement
+            ],
+            "order": [[0, 'asc']]
+        });
+
+      };
+
+    // Call the initialization function
+   
+    function toggleTabs(tabId) {
+        debugger;
+        if (tabId === 'content1') {
+            $('#content1').show();
+            $('#content2').hide();
+        }
+        else if (tabId === 'content2')
+        {
+            setTimeout(function () {
+                debugger;
+                if ($("#btn_submit").text() == "UPDATE") {
+                    $("#btn_submit").text("SUBMIT")
+                }
+                initializeFinalSettlementDataTable();
+                $('#content1').hide();
+                debugger;
+                $('#content2').show();
+                debugger;
+            }, 10);
+        }
+    }
+
+</script>
+

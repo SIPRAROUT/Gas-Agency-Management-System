@@ -1,0 +1,537 @@
+﻿@{
+    //Layout = null;
+}
+@using GasAgencyManagementProject.Models.Master;
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>User</title>
+    <link href="~/css/style.css" type="text/css" rel="stylesheet" />
+    @*<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>*@
+    @*<link href="~/css/Select2.css" rel="stylesheet" />
+    <script src="~/js/select2.js"></script>*@
+</head>
+<body>
+    <div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card bg-light">
+                    <div>
+                        <h4 class="mb-0">Product Master</h4>
+                    </div>
+                    <div class="tabs">
+                        @{
+                            Tbl_Mstr_Page mm = (Tbl_Mstr_Page)ViewData["PERMISSIONREAD"];
+                            Tbl_Mstr_Page mw = (Tbl_Mstr_Page)ViewData["PERMISSION"];
+                            bool canRead = mm.PERMISSION;
+                            bool canWrite = mw.PERMISSION;
+                        }
+                        @if (canRead && canWrite)
+                        {
+                            <ul class="nav nav-tabs" id="myTabs">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="tab1" data-toggle="tab" href="#content1" onclick="toggleTabs('content1')">ADD</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link " id="tab2" data-toggle="tab" href="#content2" onclick="toggleTabs('content2')">VIEW</a>
+                                </li>
+                            </ul>
+                        }
+                        else if (canRead)
+                        {
+                            <ul class="nav nav-tabs" id="myTabs">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="tab2" data-toggle="tab" href="#content2" onclick="toggleTabs('content2')">VIEW</a>
+                                </li>
+                            </ul>
+                        }
+                        else if (canWrite)
+                        {
+                            <ul class="nav nav-tabs" id="myTabs">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="tab1" data-toggle="tab" href="#content1" onclick="toggleTabs('content1')">ADD</a>
+                                </li>
+                            </ul>
+                        }
+                        else
+                        {
+                            <p>You don't have permission to access this page.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+            @{
+                Tbl_Mstr_Page m = (Tbl_Mstr_Page)ViewData["PERMISSION"];
+                if (m.PERMISSION == true)
+                {
+                    <div class="col-lg-12" id="content1">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="basic-form">
+                                    <form>
+                                        <div class="row">
+                                              <div class="form-group col-md-3">
+                                                   <label>Product No</label>
+                                                    <input type="text" class="form-control" placeholder="Product No" value="@ViewBag.Code" id="txt_ProductNo"  readonly>
+                                               </div>
+                                            <div class="form-group col-md-3">
+                                                <label>Product Name</label>
+                                                <input type="text" class="form-control" id="txt_ProductName" tabindex="6" placeholder="Product Name">
+                                            </div>
+                                            <div class="form-group  col-md-3">
+                                                <label for="validationDefault01">Category Name</label>
+                                                <select class="form-control sel2" id="ddl_CategoryName" tabindex="7">
+                                                    <option value="" selected hidden>Select  </option>
+                                                    @{
+                                                        List<Tbl_Mstr_Category> lstCategory = (List<Tbl_Mstr_Category>)ViewData["Category"];
+                                                        if (lstCategory != null)
+                                                        {
+                                                            foreach (var item in lstCategory)
+                                                            {
+                                                                if (item.Catgry_Status == "Active")
+                                                                {
+                                                                <option value="@item.Catgry_Id">@item.Catgry_Name</option>
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-md-3">
+                                                <label>Product Type</label>
+                                                <select class="form-control" tabindex="8" id="ddl_ProductType">
+                                                    <option value="" selected hidden>--Select Product Type--</option>
+                                                    <option value="Accessories">Accessories</option>
+                                                    <option value="Refil">Refil</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-md-3">
+                                                <label>Product Status</label>
+                                                <select class="form-control" tabindex="9" id="ddl_ProductStatus">
+                                                    <option value=""  hidden>--Select Product Status--</option>
+                                                    <option value="Active" selected>Active</option>
+                                                    <option value="In Active">In Active</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row  ">
+                                            <div class="col-md-3 posit">
+                                                <button type="button" class="btn btn-primary" onclick="ProductIUD()" id="btn_submit" tabindex="10">SUBMIT</button>
+                                                <button type="button" class="btn btn-danger" id="btn_cancel" tabindex="11" onclick="ClearProduct()">CLEAR</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            <!-- Your "View" content -->
+            <div class="col-lg-12" id="content2" style="display: none; padding-top:0.5px;">
+                <!-- View Content -->
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-title">
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-striped table-bordered" id="Tbl_Mstr_Product_View">
+                                    <thead>
+                                        <tr class="headergrid">
+                                            <th style="text-align: center; width: 76px">SlNo</th>
+                                            <th style="text-align: center;">Product Name</th>
+                                            <th style="text-align: center;">Category Name</th>
+                                            <th style="text-align: center;">Product Type</th>
+                                            <th style="text-align: center;">Product Status</th>
+                                            <th style="text-align: center;">Action</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /# card -->
+                </div>
+                <!-- View Content -->
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="hdnId" value=""   />
+</body>
+</html>
+<link href="~/css/Datatable.css" rel="stylesheet" />
+<script src="~/js/DataTable.js"></script>
+<script>
+    $(document).ready(function () {
+        $.noConflict();
+        @{
+                Tbl_Mstr_Page mm1 = ViewData["PERMISSIONREAD"] as Tbl_Mstr_Page;
+                Tbl_Mstr_Page mw1 = ViewData["PERMISSION"] as Tbl_Mstr_Page;
+                bool canRead1 = mm1?.PERMISSION ?? false;
+                bool canWrite1 = mw1?.PERMISSION ?? false;
+        }
+        // Use JavaScript variables to store the values of canRead and canWrite
+        var canReadAccess = @Html.Raw(Json.Encode(canRead1));
+        var canWriteAccess = @Html.Raw(Json.Encode(canWrite1));
+        // Trigger click event on the "VIEW" tab if read access is enabled
+        if (canReadAccess && !canWriteAccess) {
+         $('#tab2').click();
+        }
+        $('#tab1').click(function () {
+            ClearProduct();
+        });
+        $('#txt_ProductName').focus();
+        // Add keypress event listener to the form
+        $('form').keypress(function (e) {
+            if (e.which === 13) {
+                e.preventDefault(); // Prevent the default Enter key behavior (e.g., submitting a form)
+                if ($('#btn_cancel').is(':focus')) {
+                    e.stopPropagation();
+                    ClearProduct(); // Call ClearSupplier if the clear button is focused
+                }
+                else {
+                    SupplierIUDOnEnter(); // Call SupplierIUDOnEnter for form submission
+                }
+            }
+        });
+        BindSelect2();
+    });
+    function BindSelect2() {
+        $(".sel2").select2({
+            tags: false,
+            placeholder: "--Select Category Name--",
+            allowClear: true
+        });
+    }
+    // Custom function to handle form submission on Enter key
+    function SupplierIUDOnEnter() {
+        ProductIUD();
+    }
+    document.addEventListener('keydown', function (event) {
+        // Check if the pressed key is Escape (key code 27)
+        if (event.key === 'Escape') {
+            ClearProduct();
+        }
+    });
+    //UserValidation ALertMsg
+    function ProductIUD() {
+        var ButtonData = $('#btn_submit');
+        var action = (ButtonData.text() === "SUBMIT") ? "INSERT" : "UPDATE";
+        $('#txt_ProductName').focus();
+        if (ValidateProduct() == true) {
+            $.ajax({
+                type: 'post',
+                dataType: 'JSON',
+                url: '../Master/MstrProductIUD',
+                data: {
+                    'Product_Id': $('#hdnId').val(),
+                    'Product_No': $('#txt_ProductNo').val(),
+                    'Product_Name': $('#txt_ProductName').val(),
+                    'Catgry_Id': $('#ddl_CategoryName').val(),
+                    'Product_Type': $('#ddl_ProductType').val(),
+                    'Product_Status': $('#ddl_ProductStatus').val(),
+                    'Action': action
+                },
+                success: function (res) {
+                    debugger;
+                    if (res == 'Product Name Already Exist.Duplicate Not Allowed') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops',
+                            text: res,
+                            didOpen: () => {
+                                // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                setTimeout(() => {
+                                    const okButton = document.querySelector('.swal2-confirm');
+                                    if (okButton) {
+                                        okButton.focus();
+                                    }
+                                }, 0);
+                            },
+                        })
+                        txt_ProductName.focus();
+                        return false;
+                    }
+                    else if (res == 'Product Master Created Successfully') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: res,
+                            didOpen: () => {
+                                // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                setTimeout(() => {
+                                    const okButton = document.querySelector('.swal2-confirm');
+                                    if (okButton) {
+                                        okButton.focus();
+                                    }
+                                }, 0);
+                            },
+                        })
+                        ClearProduct();
+                    }
+                    else if (res = 'Product Master Modified Successfully') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated',
+                            text: res,
+                            didOpen: () => {
+                                // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                setTimeout(() => {
+                                    const okButton = document.querySelector('.swal2-confirm');
+                                    if (okButton) {
+                                        okButton.focus();
+                                    }
+                                }, 0);
+                            },
+                        })
+                    }
+                    ClearProduct();
+                    $('#btn_submit').text('SUBMIT');
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+        }
+    }
+    //UserValidation PopupMsg
+    function ValidateProduct() {
+        if ($('#txt_ProductName').val() === "") {
+            $('#txt_ProductName').focus();
+            Swal.fire(
+                {
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'Product Name cannot be  blank!!'
+                }
+            );
+            return false;
+        }
+        if ($('#ddl_CategoryName').val() === "") {
+            $('#ddl_CategoryName').focus();
+            Swal.fire(
+                {
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'Category Name cannot be  blank!!'
+                }
+            );
+            return false;
+        }
+        if ($('#ddl_ProductType').val() === "") {
+            $('#ddl_ProductType').focus();
+            Swal.fire(
+                {
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'Product Type cannot be  blank!!'
+                }
+            );
+            return false;
+        }
+        if ($('#ddl_ProductStatus').val() === "") {
+            $('#ddl_ProductStatus').focus();
+            Swal.fire(
+                {
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'Product Status cannot be  blank!!'
+                }
+
+            );
+            return false;
+        }
+        return true;
+    }
+    //ClearUser
+    function ClearProduct() {
+        $.ajax({
+            url: '../Master/AutoProductCode',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                $('#txt_ProductNo').val(data);
+            },
+            error: function () {
+                console.log('Error fetching data.');
+            }
+        });
+        $('#txt_ProductName').val('');
+        $('#ddl_CategoryName').val('').trigger('change');
+        $('#ddl_ProductStatus').val('Active');
+        $('#ddl_ProductType').val('');
+        $('#txt_ProductName').focus();
+        $("#btn_submit").text("SUBMIT")
+    }
+    setTimeout(function () {
+        initializeDataTable();
+    }, 0);
+    var initializeDataTable = function () {
+        if ($.fn.DataTable.isDataTable('#Tbl_Mstr_Product_View')) {
+            $('#Tbl_Mstr_Product_View').DataTable().destroy();
+        }
+        var dt = $('#Tbl_Mstr_Product_View').DataTable(
+            {
+                "processing": true,
+                "responsive": true,
+                "serverSide": true,
+                "searching": true,
+                "paging": true,
+                "sort": true,
+                "lengthMenu": [5, 10, 25, 50, 100],
+                "ajax": {
+                    "url": "/Master/GetProduct",
+                    "type": "GET"  // Assuming a POST request, change it to "GET" if needed
+                },
+                "columns": [
+                    {
+                        "className": "text-center",
+                        "data": null,
+                        "orderable": false,
+                        "render": function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    { "data": "Product_Name" },
+                    { "data": "Catgry_Name" },//change
+                    { "data": "Product_Type" },
+                    { "data": "Product_Status" },
+                    {
+                        "class": "details-control",
+                        "orderable": false,
+                        "data": null, render: function (data, type, row) {
+                            return "<div class='btn-group' style='text-align:center;' ><a id='" + data.Product_Id + "' onclick='return_id(this.id);' style='cursor:pointer;' title='Edit' class='btn btn-primary action_btn'><i class='jsgrid-button jsgrid-edit-button ti-pencil-alt btn btn-primary color-white'></i></a>" +
+                                "<a id='" + data.Product_Id + "' onclick='delete_id(this.id);' style='cursor:pointer;' title='Delete' class='btn btn-danger action_btn'><i class='jsgrid-button jsgrid-delete-button ti-trash btn btn-danger  color-white'></i></a></div>";
+                        }
+                    }
+                ],
+                "order": [[0, 'asc']]
+            });
+    }
+    function toggleTabs(tabId) {
+        if (tabId === 'content1') {
+            $('#content1').show();
+            $('#txt_ProductName').focus();
+            $('#content2').hide();
+        }
+        else if (tabId === 'content2') {
+            setTimeout(function () {
+                if ($("#btn_submit").text() == "UPDATE") {
+                    ClearProduct();
+                    $("#btn_submit").text("SUBMIT");
+                }
+                initializeDataTable();
+                $('#content1').hide();
+                $('#content2').show();
+            }, 0);
+        }
+    }
+    //----------edit data---------------
+    function return_id(par) {
+        var canEdit = @Html.Raw(Json.Encode(canWrite1));
+         if (!canEdit) {
+             Swal.fire({
+            icon: 'error',
+            title: 'Oops',
+            text: 'YOU HAVE NO PERMISSION FOR EDIT!'
+            });
+            return;
+         }
+        $('#tab1').addClass('active');
+        $('#tab2').removeClass('active').addClass('closed');
+        $('#content1').show();
+        $('#content2').hide();
+        $.ajax(
+            {
+                url: '/Master/EditProduct?Id=' + par, // Replace with your controller and action
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    $('#hdnId').val(par),
+                        $('#txt_ProductName').focus();
+                    $('#txt_ProductNo').val(data.Product_No),
+                    $('#txt_ProductName').val(data.Product_Name),
+                    $('#ddl_CategoryName').val(data.Catgry_Id).trigger('change'),
+                    $('#ddl_ProductType').val(data.Product_Type),
+                    $('#ddl_ProductStatus').val(data.Product_Status),
+                    $('#btn_submit').text('UPDATE');
+                },
+                error: function () {
+                    console.log('Error loading data.');
+                }
+            });
+    }
+    //-----------end here---------------
+    //-----------delete data--------------
+    function delete_id(par) {
+        debugger;
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
+                var equip = {
+                    'Product_Id': par,
+                    'Action': 'DELETE'
+                };
+                $.ajax({
+                    url: '/Master/MstrProductIUD',
+                    data: JSON.stringify(equip),
+                    type: 'post',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    success: function (res) {
+                        if (res === "Product Master Deleted Successfully") {
+                            Swal.fire({
+                                icon: 'success',
+                                title: "Deleted",
+                                text: res
+                            })
+                            setTimeout(function () {
+                                initializeDataTable();
+                                debugger;
+                                $('#content1').hide();
+                                $('#content2').show();
+                            }, 100);
+                        }
+                        else if (res === "YOU HAVE NO PERMISSION FOR DELETE!") {
+                            Swal.fire({
+                                icon: 'error',
+                                title: "Opss",
+                                text: res
+                            });
+                        }
+                        else if (res == 'Product is referenced in the Stock table. Cannot delete.') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: "Oops",
+                                text: res,
+                                didOpen: () => {
+                                    // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                    setTimeout(() => {
+                                        const okButton = document.querySelector('.swal2-confirm');
+                                        if (okButton) {
+                                            okButton.focus();
+                                        }
+                                    }, 0);
+                                },
+                            })
+                        }
+                        else {
+                            alert(res);
+                        }
+                    },
+                    error: function (err) {
+                        alert(err);
+                    }
+                });
+            }
+        });
+    }
+</script>

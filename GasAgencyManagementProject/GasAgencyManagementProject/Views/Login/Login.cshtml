@@ -1,0 +1,232 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .btn#signInButton:focus {
+            box-shadow: 0 0 0 0.25rem rgba(38, 143, 255, 0.5);
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+    </style>
+    <script type="text/javascript">
+        javascript: window.history.forward(1);
+    </script>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- theme meta -->
+    <meta name="theme-name" content="focus" />
+    <title>Focus Admin: Creative Admin Dashboard</title>
+    <!-- ================= Favicon ================== -->
+    <!-- Standard -->
+    <!-- Retina iPad Touch Icon-->
+    <link rel="apple-touch-icon" sizes="144x144" href="#">
+    <!-- Retina iPhone Touch Icon-->
+    <link rel="apple-touch-icon" sizes="114x114" href="#">
+    <!-- Standard iPad Touch Icon-->
+    <link rel="apple-touch-icon" sizes="72x72" href="#">
+    <!-- Standard iPhone Touch Icon-->
+    <link rel="apple-touch-icon" sizes="57x57" href="#">
+    <!-- Styles -->
+    <script src="~/js/jquery-3.7.1.js"></script>
+    <link href="~/css/lib/calendar2/pignose.calendar.min.css" rel="stylesheet">
+    <link href="~/css/lib/chartist/chartist.min.css" rel="stylesheet">
+    <link href="~/css/lib/font-awesome.min.css" rel="stylesheet">
+    <link href="~/css/lib/themify-icons.css" rel="stylesheet">
+    <link href="~/css/lib/owl.carousel.min.css" rel="stylesheet" />
+    <link href="~/css/lib/owl.theme.default.min.css" rel="stylesheet" />
+    <link href="~/css/lib/weather-icons.css" rel="stylesheet" />
+    <link href="~/css/lib/menubar/sidebar.css" rel="stylesheet">
+    <link href="~/css/lib/bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/lib/helper.css" rel="stylesheet">
+    <link href="~/css/style.css" rel="stylesheet">
+    <script src="~/js/sweetalert2011.js"></script>
+    <!-- ... other head elements ... -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link href="~/css/loader.css" rel="stylesheet" />
+</head>
+
+<body class="bg-primary">
+    <div>
+        <div class="unix-login">
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-lg-6">
+                        <div class="login-content">
+                            <div class="login-form">
+                                <h4>Login</h4>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="text" tabindex="1" id="txt_email" class="form-control" placeholder="Email" fdprocessedid="eytad9" name="useremail" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="text-center spinner-container" id="loader">
+                                        <div class="spinner-border" role="status">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Password</label>
+                                    <div class="password-container">
+                                        <input type="password" tabindex="2" id="txt_password" class="form-control" placeholder="Password" fdprocessedid="4qxsn8" name="pwd" required>
+                                        <span class="toggle-password"><i class="fa fa-eye" style="color:black;"></i></span>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-flat m-b-30 m-t-30 rounded" id="signInButton" fdprocessedid="wzkd5" onclick="Loginchk()">Sign in</button>
+                                <div class="register-link m-t-15 text-center">
+                                    <p> @DateTime.Now.Year ©ABACUS SYSTEM & SOLUTION(P) LTD. -<a href="#"> Abacus.com</a></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- jquery vendor -->
+    <!-- nano scroller -->
+    <script src="~/js/lib/menubar/sidebar.js"></script>
+    <script src="~/js/lib/bootstrap.min.js"></script>
+    <script src="~/js/scripts.js"></script>
+    <!-- bootstrap -->
+    <script src="~/js/lib/calendar-2/moment.latest.min.js"></script>
+    <script src="~/js/lib/calendar-2/pignose.calendar.min.js"></script>
+    <script src="~/js/lib/calendar-2/pignose.init.js"></script>
+    <script src="~/js/lib/weather/jquery.simpleWeather.min.js"></script>
+    <script src="~/js/lib/weather/weather-init.js"></script>
+    <script src="~/js/lib/circle-progress/circle-progress.min.js"></script>
+    <script src="~/js/lib/circle-progress/circle-progress-init.js"></script>
+    <script src="~/js/lib/chartist/chartist.min.js"></script>
+    <script src="~/js/lib/sparklinechart/jquery.sparkline.min.js"></script>
+    <script src="~/js/lib/sparklinechart/sparkline.init.js"></script>
+    <script src="~/js/lib/owl-carousel/owl.carousel.min.js"></script>
+    <script src="~/js/lib/owl-carousel/owl.carousel-init.js"></script>
+</body>
+</html>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        debugger;
+        hideLoader();
+        $('#txt_email').focus();
+
+        $('#txt_email, #txt_password').on('keyup', function (e) {
+            if (e.which === 13) {
+                e.preventDefault();
+                Loginchk();
+            }
+        });
+        $('#txt_password').attr("type", "password");
+    });
+  
+    function togglePasswordVisibility() {
+        var passwordField = $("#txt_password");
+        var toggleButton = $(".toggle-password i");
+
+        if (passwordField.attr("type") === "password") {
+            passwordField.attr("type", "text");
+            toggleButton.removeClass("fa-eye").addClass("fa-eye-slash");
+        } else {
+            passwordField.attr("type", "password");
+            toggleButton.removeClass("fa-eye-slash").addClass("fa-eye");
+        }
+    }
+    $('.toggle-password').click(function () {
+        togglePasswordVisibility();
+    });
+    document.addEventListener('keydown', function (event) {
+        // Check if the pressed key is Escape (key code 27)
+        if (event.key === 'Escape') {
+            $('#txt_email').val('');
+            $('#txt_password').val('');
+
+        }
+    });
+    function showLoader() {
+        // Show the loader
+        $('#loader').show();
+    }
+    function hideLoader() {
+        // Hide the loader
+        $('#loader').hide();
+    }
+    function Loginchk() {
+            debugger;
+    if (ValidateLogin() == true) {
+        debugger;
+        $('#txt_email').focus();
+
+    $.ajax({
+        type: 'post',
+    dataType: 'JSON',
+    url: '@Url.Action("Loginchk")',
+    data: {'useremail': document.getElementById('txt_email').value, 'pwd': document.getElementById('txt_password').value },
+    success: function (res) {
+                        debugger;
+        if (res.toString().split('|')[0].trim() == "#sucess") {
+            showLoader();// Show loader before AJAX reques
+            setTimeout(function () {
+                window.location.href = "../Master/DashBoard";
+            }, 2000);
+
+           }
+    else {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops',
+            text: 'Invalid Useremail/Password'
+        });
+        ClearUser();
+    }
+    },
+    error: function (xhr, ajaxOptions, thrownError) {
+    }
+                });
+            }
+        }
+    //-----------------------------
+    function ClearUser() {
+        $('#txt_email').val('');
+        $('#txt_password').val('');
+    }
+    //-----------------------------
+    function ValidateLogin() {
+
+        if ($('#txt_email').val() === "") {
+            $("#txt_email").focus();
+
+            Swal.fire({
+                icon: 'info',
+                text: 'Email cannot be  blank!!'
+            });
+    return false;
+        }
+        if ($('#txt_password').val() === "") {
+            $("#txt_password").focus();
+        Swal.fire({
+            icon: 'info',
+            text: 'Password cannot be blank!!'
+        });
+    return false;
+        }
+    return true;
+    }
+</script>

@@ -1,0 +1,31 @@
+﻿body {
+    margin: 0;
+    padding: 0;
+    background-color: #ccc;
+}
+
+.lock-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background-color: rgba(0, 0, 0, 0.5);
+    background-image: url('../images/lockscreen.jpg');
+    background-size: cover;
+    height: 100%;
+    top: -100%;
+    transition: all 0.5s;
+}
+
+.lock-screen-active {
+    top: 0;
+}
+
+.lock-screen-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px;
+    border-radius:  10px;
+}

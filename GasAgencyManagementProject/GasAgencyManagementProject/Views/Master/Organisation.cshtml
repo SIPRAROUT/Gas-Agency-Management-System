@@ -1,0 +1,368 @@
+﻿@{
+    ViewBag.Title = "Organisation";
+}
+@using GasAgencyManagementProject.Models.Master
+@model GasAgencyManagementProject.Models.Master.Tbl_Mstr_Organization
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/css/style.css" type="text/css" rel="stylesheet" />
+    <script src="~/js/sweetalert2@9.js"></script>
+</head>
+<body>
+    <div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card bg-light">
+                    <h4>Organization Master</h4>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="basic-form">
+                            <form>
+                                <div class="row">
+                                    @{
+                                        <div class="form-group col-md-3">
+                                            <label> Organization Name</label>
+                                            <input type="text" class="form-control" id="txtOrganisationName" value="@Model.Org_Name" tabindex="6" placeholder="Organization Name">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Short Name</label>
+                                            <input type="text" class="form-control" id="txtShortName" value="@Model.Org_Srt_Name" tabindex="7" placeholder="Short Name">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Address</label>
+                                            <textarea class="form-control" id="txtAddress" tabindex="8" rows="3" placeholder="Address">@Model.Org_Addrs</textarea>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Phone No</label>
+                                            <input type="text" class="form-control" maxlength="10" id="txtPhone" value="@Model.Org_PhNo" tabindex="9" placeholder="Phone No" oninput="validateInput (this)">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label> FAX No</label>
+                                            <input type="text" class="form-control" id="txtFaxNo" value="@Model.Org_FaxNo" tabindex="10" placeholder="FAX No">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Email</label>
+                                            <input type="text" class="form-control" id="txtEmail" value="@Model.Org_Email" tabindex="11" placeholder="Email">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Website</label>
+                                            <input type="text" class="form-control" id="txtWebsite" value="@Model.Org_Website" tabindex="12" placeholder="Website">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>TIN No</label>
+                                            <input type="text" class="form-control" id="txtTinNo" value="@Model.Org_TinNo" tabindex="13" placeholder="TIN No">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>CST No</label>
+                                            <input type="text" class="form-control" id="txtCSTNo" value="@Model.Org_CSTNo" tabindex="14" placeholder="CST No">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>PAN No</label>
+                                            <input type="text" class="form-control" id="txtPanNo" value="@Model.Org_PanNo" tabindex="15" placeholder="PAN No">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label> Servicetax No</label>
+                                            <input type="text" class="form-control" id="txtServiceTaxNo" value="@Model.Org_SrvcTaxNo" tabindex="16" placeholder="Servicetax No">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Regd No</label>
+                                            <input type="text" class="form-control" id="txtRegNo" value="@Model.Org_RegNo" tabindex="17" placeholder="Regd No">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label> TAN No</label>
+                                            <input type="text" class="form-control" id="txtTanNo" value="@Model.Org_TanNo" tabindex="18" placeholder="TAN No">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Logo</label>
+                                            <div>
+                                                <input type="file" name="fupbox" id="upload11" size="40" tabindex="14" style="display:none; " />
+                                                <img src="../images/Org/@Model.Org_Logo" id="img1" style="height:55px; width:75px; cursor:pointer;margin-top:5px;" tabindex="19" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            @{
+                                                Tbl_Mstr_Page m = (Tbl_Mstr_Page)ViewData["PERMISSION"];
+                                                if (m.PERMISSION == true)
+                                                {
+                                                    <div class="row">
+                                                        <div class="form-group box-footer" style="position:absolute;margin-left:37%; margin-top:3%;">
+                                                            <button type="button" class="btn btn-primary" tabindex="20" onclick="validate();">UPDATE</button>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<input type="hidden" id="hdnId" value="@Model.Org_Id" />
+<input type="hidden" id="hdnimage1" value="0" />
+<input type="hidden" id="hdnext1" value="0" />
+<input type="hidden" id="hdnImgPath" value="@Model.Org_Logo" />
+<script type="text/javascript">
+    function validateInput(input) {
+        // Remove any non-numeric characters
+        input.value = input.value.replace(/\D/g, '');
+    }
+    $(document).ready(function () {
+        $.noConflict();
+        txtOrganisationName.focus();
+        $('form').keypress(function (e) {
+            if (e.which === 13) {
+                e.preventDefault(); // Prevent the default Enter key behavior (e.g., submitting a form)
+                validate(); // Custom function to handle form submission
+            }
+        });
+        $(document).on('click', '#img1', function () {
+            $("#upload11").click();
+        });
+        $("#upload11").on('change', function () {
+            var input = this;
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var ext = input.files[0].name.split('.').pop().toLowerCase();
+                    if (ext === "jpg" || ext === "jpeg" || ext === "png") {
+                        hdnext1.val(ext);
+                        hdnimage1.val(e.target.result);
+                        $('#img1').attr('src', e.target.result);
+                    }
+                    else {
+                        $('#upload11').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            text: 'Please select jpg, jpeg, or png type file'
+                        });
+                        $(input).val(''); // Clear the file input
+                    }
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        });
+    });
+    //-----------------------------------------------
+    var hdnId = $("#hdnId");
+    var hdnimage1 = $("#hdnimage1");
+    var hdnext1 = $("#hdnext1");
+    var hdnImgPath = $("#hdnImgPath");
+    var txtOrganisationName = $("#txtOrganisationName");
+    var txtShortName = $("#txtShortName");
+    var txtAddress = $("#txtAddress");
+    var txtPhone = $("#txtPhone");
+    var txtFaxNo = $("#txtFaxNo");
+    var txtEmail = $("#txtEmail");
+    var txtWebsite = $("#txtWebsite");
+    var txtTinNo = $("#txtTinNo");
+    var txtCSTNo = $("#txtCSTNo");
+    var txtPanNo = $("#txtPanNo");
+    var txtServiceTaxNo = $("#txtServiceTaxNo");
+    var txtRegNo = $("#txtRegNo");
+    var txtTanNo = $("#txtTanNo");
+    var upload = $('#upload11');
+
+    function validate() {
+        debugger;
+        if (ValidateOrganisation() == true) {
+            $.ajax({
+                url: '@Url.Action("SaveOrganisationMaster")',
+                data: {
+                'Org_Id': hdnId.val(), 'Org_Name': txtOrganisationName.val(), 'Org_Srt_Name': txtShortName.val(), 'Org_Addrs': txtAddress.val(), 'Org_PhNo': txtPhone.val(),
+                'Org_FaxNo': txtFaxNo.val(), 'Org_Email': txtEmail.val(), 'Org_Website': txtWebsite.val(), 'Org_TinNo': txtTinNo.val(), 'Org_CSTNo': txtCSTNo.val(), 'Org_PanNo': txtPanNo.val(),
+                'Org_SrvcTaxNo': txtServiceTaxNo.val(), 'Org_RegNo': txtRegNo.val(), 'Org_TanNo': txtTanNo.val(), 'base64Data': hdnimage1.val(), 'ext': hdnext1.val(), 'hdnImgPath': hdnImgPath.val()
+                },
+                dataType: 'json',
+                type: 'post',
+                success: function (data) {
+                Swal.fire({
+                icon: 'success',
+                title: 'Updated',
+                text: data
+                });
+                },
+                error: function (err) {
+                Swal.fire({
+                icon: 'error',
+                title: 'Opss',
+                text: data
+                });
+                }
+                });
+                setTimeout(function () {
+                location.reload();
+                }, 3000);
+                }
+                }
+                //------------------Validate Organisation----------------------------------
+                function ValidateOrganisation() {
+                var Errormsg = new Array();
+                    if ($('#txtOrganisationName').val() === "") {
+                        $('#txtOrganisationName').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'Organisation Name can not be left blank!!'
+                        });
+                        return false;
+                    }
+                    if ($('#txtShortName').val() === "") {
+                        $('#txtShortName').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'Short Name can not be left blank!!'
+                        });
+                        return false;
+                    }
+                    if ($('#txtAddress').val() === "") {
+                        $('#txtAddress').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'Address can not be left blank!!'
+                        });
+                        return false;
+                    }
+                    if ($('#txtPhone').val() === "") {
+                        $('#txtPhone').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'Phone No can not be left blank!!'
+                        });
+                        return false;
+                    }
+                    if ($('#txtPhone').val().length<10) {
+                        $('#txtPhone').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'Phone No Should be 10 digits!!'
+                        });
+                        return false;
+                    }
+                    if ($('#txtFaxNo').val() === "") {
+                        $('#txtFaxNo').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'Fax No can not be left blank!!'
+                        });
+                        return false;
+                    }
+                    if ($('#txtEmail')) {
+                        if ($('#txtEmail').val() === "") {
+                            $('#txtEmail').focus();
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Info',
+                                text: 'Email can not be left blank!!'
+                            });
+                            return false;
+                        }
+                        var emailPattern = /^[^\s@@]+@@[^\s@@]+\.[a-zA-Z]{2,}$/;
+                        if (!emailPattern.test($('#txtEmail').val())) {
+                            $('#txtEmail').focus();
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'Info',
+                                text: 'please enter valid email address!!'
+                            });
+                            return false;
+                        }
+                    }
+                    if ($('#txtWebsite').val() === "") {
+                        $('#txtWebsite').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'Website can not be left blank!!'
+                        });
+                        return false;
+                    }
+                    if ($('#txtTinNo').val() === "") {
+                        $('#txtTinNo').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'TinNo can not be left blank!!'
+                        });
+                        return false;
+                    }
+                    if ($('#txtCSTNo').val() === "") {
+                        $('#txtCSTNo').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'CSTNo can not be left blank!!'
+                        });
+                        return false;
+                    }
+                    if ($('#txtPanNo').val() === "") {
+                        $('#txtPanNo').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'PanNo can not be left blank!!'
+                        });
+                        return false;
+                    }
+                    if ($('#txtServiceTaxNo').val() === "") {
+                        $('#txtServiceTaxNo').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'Service TaxNo can not be left blank!!'
+                        });
+                        return false;
+                    }
+
+                    if ($('#txtRegNo').val() === "") {
+                        $('#txtRegNo').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'RegNo can not be left blank!!'
+                        });
+                        return false;
+                    }
+
+                    if ($('#txtTanNo').val() === "") {
+                        $('#txtTanNo').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'TanNo can not be left blank!!'
+                        });
+                        return false;
+                    }
+                    if ($('#upload').val() === "" && $('#hdnImgPath').val()==="") {
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'Please Choose Organisation Logo!!'
+                        });
+                        return false;
+                    }
+                var msgHtmlmessage = "";
+                Errormsg.forEach(function (message) {
+                msgHtmlmessage += "<div class='alert_css'><i class='fa fa-exclamation-triangle ' aria-hidden='true'></i>" + message + "</div>";
+                });
+                if (msgHtmlmessage != '') {
+                Warning(msgHtmlmessage);
+                return false;
+                }
+                return true;
+                }
+</script>

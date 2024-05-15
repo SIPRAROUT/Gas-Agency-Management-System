@@ -1,0 +1,982 @@
+﻿@{
+    //Layout = null;
+}
+@using GasAgencyManagementProject.Models.Transaction
+@using GasAgencyManagementProject.Models.Master
+
+<head>
+    <link href="~/css/style.css" type="text/css" rel="stylesheet"   />
+    <link href="~/css/Select2.css" rel="stylesheet" />
+    <script src="~/js/select2.js"></script>
+    <style>
+        .ui-datepicker {
+            display: none;
+        }
+
+        #content2 {
+            display: none;
+        }
+    </style>
+</head>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card bg-light">
+            <div>
+                <h4 class="mb-0">Sales</h4>
+            </div>
+            <div class="tabs">
+                @{
+                    Tbl_Mstr_Page mm = (Tbl_Mstr_Page)ViewData["PERMISSIONREAD"];
+                    if (mm.PERMISSION == true)
+                    {
+                        <ul class="nav nav-tabs" id="myTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tab1" data-toggle="tab" href="#content1" onclick="toggleTabs('content1')">ADD</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="tab2" data-toggle="tab" href="#content2" onclick="toggleTabs('content2')">VIEW</a>
+                            </li>
+                        </ul>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+
+    @{
+        Tbl_Mstr_Page m = (Tbl_Mstr_Page)ViewData["PERMISSION"];
+        if (m.PERMISSION == true)
+        {
+
+
+            <div class="col-lg-12" id="content1">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="basic-form">
+                            <div class="row">
+                                <div class="form-group col-md-3">
+                                    <label>Invoice No</label>
+                                    <input type="text" class="form-control" id="txt_InvoiceNo" placeholder="Invoice No" value="@ViewBag.Code" readonly>
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>Booking Date</label>
+                                    <input type="text" class="datepicker form-control" placeholder="Booking Date" id="dt_bookingDate">
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>Approximate Delivery Date</label>
+                                    <input type="text" class="datepicker form-control" id="dt_ApproximatedeliveryDate" placeholder="Approximate Delivery Date">
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>Consumer No</label>
+                                    <select class="form-control sel2" id="ddl_consumerId" tabindex="6">
+                                        <option value="" selected hidden>--Select Consumer No--</option>
+                                        @{
+                                            List<Tbl_Mstr_Consumer> lstsales = (List<Tbl_Mstr_Consumer>)ViewData["Consumer"];
+                                            if (lstsales != null)
+                                            {
+                                                foreach (var item in lstsales)
+                                                {
+                                                    if (item.Status_ == "Active")
+                                                    {
+                                                        <option value="@item.Cnsmr_Id">@item.Cnsmr_No</option>
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-3">
+                                    <label>Consumer Name</label>
+                                    <input type="text" class="form-control" id="txt_ConsumerName" placeholder="consumer name " readonly>
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>Phone No</label>
+                                    <input type="text" maxlength="10" class="form-control" id="txt_PhoneNo" placeholder="Phone No" oninput="validateInput(this)" readonly>
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>Category Name</label>
+                                    <input type="text" class="form-control" id="txt_CategoryName" placeholder="Category Name" readonly>
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>Area</label>
+                                    <input type="text" class="form-control" id="txt_Area" placeholder="Area" readonly>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="basic-form">
+                            <form>
+                                <div class="row">
+                                    <div class="form-group col-md-3">
+                                        <label>Product Name</label>
+                                        <select class="form-control sel1" id="ddl_ProductName" tabindex="7">
+                                            <option value="" selected hidden>--Select Product Name--</option>
+                                            @{
+                                                List<Tbl_Mstr_Product> lstStockDtl = (List<Tbl_Mstr_Product>)ViewData["Stock"];
+                                                if (lstStockDtl != null)
+                                                {
+                                                    foreach (var stockDtl in lstStockDtl)
+                                                    {
+                                                        <option value="@stockDtl.Product_Id">@stockDtl.Product_Name</option>
+                                                    }
+                                                }
+                                            }
+
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label> Quantity </label>
+                                        <input type="text" class="form-control" placeholder=" Quantity " id="txt_Quantity" tabindex="8">
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>Actual Cost</label>
+                                        <input type="text" class="form-control" placeholder="Actual Cost" id="txt_actualcost" readonly>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>MRP</label>
+                                        <input type="text" class="form-control" placeholder="MRP" id="txt_MRP" readonly>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>Discount (%)</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="txt_discount" placeholder="Discount" tabindex="9" oninput="calculateFinalPrice()">
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>Rate</label>
+                                        <input type="text" class="form-control" placeholder="Rate" id="txt_Rate" readonly>
+                                    </div>
+                                    <div class="form-group col-md-3">
+                                        <label>Amount</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Amount" id="txt_Amount" readonly>&nbsp;&nbsp;&nbsp;&nbsp;
+                                            <div class="input-group-append">
+                                                <input type="button" class="add btn btn-primary" onclick="add_row();" value="ADD" tabindex="10">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div id="wrapper">
+                        <table class="table table-bordered" align='center' cellspacing=2 cellpadding=5 id="data_table" border=1>
+                            <tr>
+                                <th style="display:none;">Id</th>
+                                <th>Product Name</th>
+                                <th>Quantity</th>
+                                <th>Actual Cost</th>
+                                <th>MRP</th>
+                                <th>Rate</th>
+                                <th>Discount</th>
+                                <th>Amount</th>
+                                <th>Action</th>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="basic-form">
+                            <div class="row">
+                                <div class="form-group col-md-3">
+                                    <label>Delivery Partner Name</label>
+                                    <select class="form-control sel3" id="ddl_deliveryPartnerId" tabindex="11">
+                                        <option value="" selected hidden>--Select DeliveryPattern Name--</option>
+                                        @{
+                                            List<Tbl_Mstr_DeliveryPartner> lstDeliveryPartner = (List<Tbl_Mstr_DeliveryPartner>)ViewData["DeliveryPartner"];
+                                            if (lstDeliveryPartner != null)
+                                            {
+                                                foreach (var item in lstDeliveryPartner)
+                                                {
+                                                    <option value="@item.Dp_Id">@item.Dp_Name</option>
+                                                }
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label>Payment Status</label>
+                                    <select class="form-control" id="ddl_paymentStatus" tabindex="12">
+                                        <option value="" selected hidden>--Select Payment Status--</option>
+                                        <option value="Partial">Partial</option>
+                                        <option value="Fully">Fully</option>
+
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <div class="form-group">
+                                        <label>Initial Payment</label>
+                                        <input type="text" class="form-control" id="txt_initialPayment" placeholder="Initial Payment" tabindex="13">
+                                    </div>
+                                </div>
+
+                                <div class="form-group col-md-3">
+
+                                    <label>Initial Payment Mode</label>
+                                    <select class="form-control" id="ddl_initialPaymentMode" tabindex="14">
+                                        <option value="" selected hidden>--Select Payment Mode--</option>
+                                        <option value="UPI">UPI</option>
+                                        <option value="Netbanking">Netbanking</option>
+                                        <option value="COD">COD</option>
+                                        <option value="Credit Card">Credit Card</option>
+                                        <option value="Debit Card">Debit Card</option>
+                                        <option value="PayPal">PayPal</option>
+                                        <option value="Bank Transfer">Bank Transfer</option>
+                                        <option value="Google Pay">Google Pay</option>
+                                        <option value="PhonePe">PhonePe</option>
+                                        <option value="Apple Pay">Apple Pay</option>
+                                    </select>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+
+                        <div class="row  ">
+                            <div class="col-md-3 posit">
+                                <button type="button" class="btn btn-primary" onclick="SalesIUD()" id="btn_submit" tabindex="15">SUBMIT</button>
+                                <button type="button" class="btn btn-danger" id="btn_cancel" onclick="ClearSales()" tabindex="16">CLEAR</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+
+        }
+    }
+    <!-- Your "View" content -->
+    <div class="col-lg-12" id="content2" style="display: none;">
+        <!-- View Content -->
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-title">
+
+                </div>
+                <div class="card-body no-padding">
+                    <div class="table-responsive">
+                        <table class="table table-bordered  table-hover table-striped" id="Tbl_Mstr_SalesDetail_View">
+                            <thead>
+                                <tr class="net">
+                                    <th style="text-align:center;"></th>
+                                    <th>SlNo</th>
+                                    <th>Invoice No</th>
+                                    <th>Booking Date</th>
+                                    <th>Approximate Delivery Date</th>
+                                    <th>Cnsmr No</th>
+                                    <th>Consumer Name</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="Tbl_Mstr_SalesDetail_View">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- /# card -->
+        </div>
+
+        <!-- View Content -->
+    </div>
+
+</div>
+
+<input type="hidden" id="hdnId" value="0" />
+<link href="~/css/Datatable.css" rel="stylesheet" />
+<script src="~/js/DataTable.js"></script>
+
+
+<script>
+
+   $(document).ready(function () {
+            debugger;
+     $.noConflict();
+     @{
+          Tbl_Mstr_Page mm1 = ViewData["PERMISSIONREAD"] as Tbl_Mstr_Page;
+          Tbl_Mstr_Page mw1 = ViewData["PERMISSION"] as Tbl_Mstr_Page;
+          bool canRead1 = mm1?.PERMISSION ?? false;
+          bool canWrite1 = mw1?.PERMISSION ?? false;
+     }
+    // Use JavaScript variables to store the values of canRead and canWrite
+     var canReadAccess = @Html.Raw(Json.Encode(canRead1));
+     var canWriteAccess = @Html.Raw(Json.Encode(canWrite1));
+            $('form').keypress(function (e) {
+                if (e.which === 13) {
+                    e.preventDefault(); // Prevent the default Enter key behavior (e.g., submitting a form)
+                    if ($('#btn_cancel').is(':focus')) {
+                        e.stopPropagation();
+                        ClearSales(); // Call ClearSupplier if the clear button is focused
+                    }
+                    else {
+                        SalesIUDOnEnter(); // Call SupplierIUDOnEnter for form submission
+                    }// Custom function to handle form submission
+                }
+            });
+            BindSelect2();
+            $('#ddl_consumerId').focus();
+            $('#ddl_consumerId').on('change', function () {
+                debugger;
+                var consumerId = $(this).val();
+                // Make an AJAX request to fetch category data based on the selected product
+                $.ajax({
+                    type: 'GET',
+                    url: '/Transaction/CasEditConsumer',
+                    data: { Id: consumerId },
+                    success: function (consumer) {
+                        console.log(consumer);
+
+                        // Clear existing options
+                        $('#ddl_ConsumerName').empty();
+                        // Add new option based on the received data
+                        if (consumer != null) {
+                            $('#txt_ConsumerName').val(consumer.Cnsmr_Name);
+                            $('#txt_PhoneNo').val(consumer.Cnsmr_PhNo);
+                            $('#txt_Area').val(consumer.Area_Info);
+                            $('#txt_CategoryName').val(consumer.Catgry_Name);
+                            if ($('#txt_Area').val() !== "") {
+                                debugger;
+                                var areaId = $('#txt_Area').val();
+                                console.log(areaId);
+                                // Make an AJAX request to fetch category data based on the selected product
+                                $.ajax({
+                                    type: 'GET',
+                                    url: '/Transaction/CasEditDelivery',
+                                    data: { Id: areaId },
+                                    dataType: 'json',
+
+                                    success: function (DeliveryPartner) {
+                                        // Update the options of the select dropdown
+                                        var ddl_deliveryPartnerId = $('#ddl_deliveryPartnerId');
+                                        ddl_deliveryPartnerId.empty(); // Clear existing options
+                                        ddl_deliveryPartnerId.append($('<option>').text('--Select DeliveryPattern Name--').attr('value', ''));
+
+                                        // Add new options based on the received data
+                                        $.each(DeliveryPartner, function (index, Dp) {
+                                            ddl_deliveryPartnerId.append($('<option>').text(Dp.Dp_Name).attr('value', Dp.Dp_Id));
+                                        });
+
+                                        setTimeout(function () {
+                                            debugger;
+                                            ddl_deliveryPartnerId.val(ddl_deliveryPartnerId.find('option:first').val());
+                                            console.log(ddl_deliveryPartnerId.find('option:first').val());
+                                            // Trigger the change event to ensure Select2 updates (if applied)
+                                            ddl_deliveryPartnerId.trigger('change');
+                                        }, 100);
+                                    },
+                                    error: function () {
+                                        console.error('Error fetching category data.');
+                                    }
+                                });
+
+                            }
+                        }
+                    },
+                    error: function () {
+                        console.error('Error fetching category data.');
+                    }
+                });
+                debugger;
+            });
+            // $('#ddl_ProductName').focus();
+            $('#ddl_ProductName').on('change', function () {
+                debugger;
+                var productId = $(this).val();
+                // Make an AJAX request to fetch category data based on the selected product
+                $.ajax({
+                    type: 'GET',
+                    url: '/Transaction/CasEditProduct',
+                    data: { Id: productId },
+                    success: function (product) {
+                        // Add new option based on the received data
+                        if (product != null) {
+                            $('#txt_actualcost').val(product.Stock_Price);
+                            $('#txt_MRP').val(product.Selling_Price);
+                            $('#txt_Rate').val(product.Selling_Price);
+                        }
+                    },
+                    error: function () {
+                        console.error('Error fetching category data.');
+                    }
+                });
+            });
+   });
+        function calculateFinalPrice() {
+            var sellingPrice = parseFloat(document.getElementById("txt_MRP").value) || 0;
+            var discount = parseFloat(document.getElementById("txt_discount").value) || 0;
+            var quantity = parseFloat(document.getElementById("txt_Quantity").value) || 0; // Get quantity
+
+            // Calculate final price based on discount and quantity
+            var finalPrice = discount > 0 ? sellingPrice - (sellingPrice * (discount / 100)) : sellingPrice;
+
+            // Update the Rate input field
+            document.getElementById("txt_Rate").value = finalPrice.toFixed(2);
+
+            // Update the Amount based on the new rate and quantity
+            var amount = finalPrice * quantity;
+            document.getElementById("txt_Amount").value = amount.toFixed(2);
+        }
+
+        // Event listener for Quantity input
+        $('#txt_Quantity').on('input', function () {
+            calculateFinalPrice();
+        });
+
+        // Event listener for Discount input
+        $('#txt_discount').on('input', function () {
+            calculateFinalPrice();
+        });
+
+        //----check quantity----//
+    $('#txt_Quantity').on('input', function () {
+        // Perform your AJAX call here
+        makeAjaxCall();
+    });
+
+    function makeAjaxCall() {
+        var inputValue = $('#txt_Quantity').val();
+        var actionCheck = "CheckQuantity";
+
+        $.ajax({
+            type: 'post',
+            dataType: 'json',
+            url: '/Transaction/SalesIUD',
+            data: {
+                'Product_Id': $('#ddl_ProductName').val(),
+                'Quantity': $('#txt_Quantity').val(),
+                'Action': actionCheck
+            },
+            success: function (res) {
+                debugger;
+                if (res.startsWith('Sales Quantity Exceeds Available Stock Quantity')) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Info',
+                        text: res,
+                        didOpen: () => {
+                            setTimeout(() => {
+                                const okButton = document.querySelector('.swal2-confirm');
+                                if (okButton) {
+                                    okButton.focus();
+                                    $('#txt_Quantity').val('');
+                                }
+                            }, 0);
+                        },
+                    });
+                }
+            }
+        });
+    }
+ 
+        function SalesIUDOnEnter() {
+            SalesIUD();
+        }
+
+        function BindSelect2() {
+            debugger;
+            $(".sel1").select2({
+                tags: false,
+                placeholder: "--Select Product Name--",
+                allowClear: true
+            });
+            $(".sel2").select2({
+                tags: false,
+                placeholder: "--Select Consumer No--",
+                allowClear: true
+            });
+            $(".sel3").select2({
+                tags: false,
+                placeholder: "--Select Delivery Partner Name--",
+                allowClear: true
+            });
+        }
+
+        function SalesIUD() {
+            debugger;
+            var ButtonData = $("#btn_submit").text();
+            var action = "";
+            if (ButtonData === "SUBMIT") {
+                action = "INSERT";
+            }
+            else {
+                action = "UPDATE";
+            }
+            $('#ddl_consumerId').focus();
+            var Items = [];
+            for (var i = 1; i < document.getElementById("data_table").children[0].children.length; i++) {
+                var item1 = {};
+                item1.Product_Id = document.getElementById("data_table").children[0].children[i].children[0].innerHTML;
+                item1.Product_Name = document.getElementById("data_table").children[0].children[i].children[1].innerHTML;
+                item1.Quantity = document.getElementById("data_table").children[0].children[i].children[2].innerHTML;
+                item1.Actual_Cost = document.getElementById("data_table").children[0].children[i].children[3].innerHTML;
+                item1.MRP = document.getElementById("data_table").children[0].children[i].children[4].innerHTML;
+                item1.Rate = document.getElementById("data_table").children[0].children[i].children[5].innerHTML;
+                item1.Discount = document.getElementById("data_table").children[0].children[i].children[6].innerHTML;
+                item1.Amount = document.getElementById("data_table").children[0].children[i].children[7].innerHTML;
+                Items.push(item1);
+            }
+           // var totalAmountRow = tableRows[tableRows.length - 1];
+            var totalAmount = parseFloat(document.getElementById("totalAmountRow").cells[0].innerHTML.split(":")[1].trim());
+
+            if (ValidateStock() == true) {
+                console.log(Items);
+                $.ajax({
+                    type: 'post',
+                    dataType: 'json',
+                    url: '/Transaction/SalesIUD',
+                    data: {
+                        'Sales_Id': $('#hdnId').val(),
+                        'Invoice_No': $('#txt_InvoiceNo').val(),
+                        'Booking_Date': $('#dt_bookingDate').val(),
+                        'Approximate_Delivery_Date': $('#dt_ApproximatedeliveryDate').val(),
+                        'Consumer_Id': $('#ddl_consumerId').val(),
+                        'Consumer_Name': $('#txt_ConsumerName').val(),
+                        'Phone_No': $('#txt_PhoneNo').val(),
+                        'Catgry_Name': $('#txt_CategoryName').val(),
+                        'Area_Info': $('#txt_Area').val(),
+                        'DT_Product': Items,
+                        'Total_Amount': totalAmount, // Send the total amount separately
+                        'Delivery_Partner_Id': $('#ddl_deliveryPartnerId').val(),
+                        'Payment_Status': $('#ddl_paymentStatus').val(),
+                        'Intial_Payment': $('#txt_initialPayment').val(),
+                        'Intial_Payment_Mode': $('#ddl_initialPaymentMode').val(),
+                        'Action': action
+                    },
+                    success: function (res) {
+                        debugger;
+                        if (res == 'Sales Transaction Created Successfully') {
+                            ClearSales();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: res,
+                                didOpen: () => {
+                                    // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                    setTimeout(() => {
+                                        const okButton = document.querySelector('.swal2-confirm');
+                                        if (okButton) {
+                                            okButton.focus();
+                                        }
+                                    }, 0);
+                                },
+                            })
+                        }
+                        else if (res == 'Sales Transaction Modified Successfully') {
+                            ClearSales();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: res,
+                                didOpen: () => {
+                                    // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                    setTimeout(() => {
+                                        const okButton = document.querySelector('.swal2-confirm');
+                                        if (okButton) {
+                                            okButton.focus();
+                                        }
+                                    }, 0);
+                                },
+                            })
+                        }
+                        else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops',
+                                text: res,
+                                didOpen: () => {
+                                    // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                    setTimeout(() => {
+                                        const okButton = document.querySelector('.swal2-confirm');
+                                        if (okButton) {
+                                            okButton.focus();
+                                        }
+                                    }, 0);
+                                },
+                            })
+                            ClearSales();
+                        }
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                    }
+                });
+            }
+        }
+        function ValidateStock() {
+            if ($('#dt_bookingDate').val() === "") {
+                $('#dt_bookingDate').focus();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'Booking Date  cannot be  blank!!'
+                });
+                return false;
+            }
+
+            if ($('#dt_ApproximatedeliveryDate').val() === "") {
+                $('#dt_ApproximatedeliveryDate').focus();
+
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'Approximate delivery Date cannot be balnk!!'
+                });
+                return false;
+            }
+            if ($('#ddl_consumerId').val() === "") {
+                $('#ddl_consumerId').focus();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'Consumer No cannot be  blank!!'
+                });
+                return false;
+            }
+
+            if ($('#ddl_paymentStatus').val() === "") {
+                $('#ddl_paymentStatus').focus();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'Payment Status cannot be  blank!!'
+                });
+                return false;
+            }
+
+            if ($('#txt_initialPayment').val() === "") {
+                $('#txt_initialPayment').focus();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'Initial Payment cannot be  blank!!'
+                });
+                return false;
+            }
+
+            if ($('#ddl_initialPaymentMode').val() === "") {
+                $('#ddl_initialPaymentMode').focus();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'Initial Payment Mode cannot be  blank!!',
+                    didClose: () => {
+                        // Use a timeout to ensure the Swal modal is fully closed before attempting to set focus
+                        setTimeout(() => {
+                            $('#ddl_initialPaymentMode').focus();
+                        }, 0);
+                    }
+                });
+                return false;
+            }
+            return true;
+        }
+
+        function ClearSales() {
+            debugger;
+            $.ajax({
+                url: '../Transaction/AutoStockCode',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    $('#txt_InvoiceNo').val(data);
+                },
+                error: function () {
+                    console.log('Error fetching data.');
+                }
+            });
+            $('#ddl_consumerId').val('').trigger('change');
+            $('#ddl_ProductName').val('').trigger('change');
+            setTimeout(function () {
+                $('#txt_ConsumerName').val('').trigger('change');
+            }, 1000);
+            setTimeout(function () {
+                $('#txt_PhoneNo').val('').trigger('change');
+            }, 1000);
+            setTimeout(function () {
+                $('#txt_Area').val('').trigger('change');
+            }, 1000);
+            setTimeout(function () {
+                $('#txt_CategoryName').val('').trigger('change');
+            }, 1000);
+            setTimeout(function () {
+                $('#txt_actualcost').val('').trigger('change');
+            }, 1000);
+            setTimeout(function () {
+                $('#txt_MRP').val('').trigger('change');
+            }, 1000);
+            setTimeout(function () {
+                $('#txt_Rate').val('').trigger('change');
+            }, 1000);
+            setTimeout(function () {
+                $('#ddl_deliveryPartnerId').val('').trigger('change');
+            }, 1000);
+            $('#txt_discount').val('');
+            $('#txt_Quantity').val('');
+            $('#ddl_paymentStatus').val('');
+            $('#txt_initialPayment').val('');
+            $('#ddl_initialPaymentMode').val('');
+            setTimeout(function () {
+                var table = $('#data_table');
+                table.find('tr:gt(0)').remove();
+            }, 1000);
+            $('#ddl_consumerId').focus();
+        }
+        var currentDate = new Date();
+        var formattedCurrentDate = currentDate.getDate() + '/' + (currentDate.getMonth() + 1) + '/' + currentDate.getFullYear();
+        $('#dt_bookingDate').val(formattedCurrentDate);
+        $('#dt_ApproximatedeliveryDate').val(formattedCurrentDate);
+
+        function toggleTabs(tabId) {
+            if (tabId === 'content1') {
+                $('#content1').show();
+                $('#content2').hide();
+            } else if (tabId === 'content2') { 
+
+                $('#content1').hide();
+                $('#content2').show();
+            }
+        }
+        setTimeout(function () {
+            initializeDataTable();
+        }, 0);
+        var initializeDataTable = function () {
+            if ($.fn.DataTable.isDataTable('#Tbl_Mstr_SalesDetail_View')) {
+                $('#Tbl_Mstr_SalesDetail_View').DataTable().destroy();
+            }
+            var dt = $('#Tbl_Mstr_SalesDetail_View').DataTable(
+                {
+                    "processing": true,
+                    "responsive": true,
+                    "serverSide": true,
+                    "searching": true,
+                    "paging": true,
+                    "sort": true,
+                    "lengthMenu": [5, 10, 25, 50, 100],
+                    /*  "ajax": "/Master/GetConsumer",*/
+                    "ajax": {
+                        "url": "/Transaction/GetSales",
+                        "type": "GET"  // Assuming a POST request, change it to "GET" if needed
+                    },
+                    "columns": [
+                        {
+                            "className": "text-center",
+                            "data": null,
+                            "orderable": false,
+                            "render": function (data, type, row, meta) {
+                                return meta.row + meta.settings._iDisplayStart + 1;
+                            }
+                        },
+                        { "data": "Invoice_No" },
+                        { "data": "Booking_Date" },
+                        { "data": "Approximate_Delivery_Date" },
+                        { "data": "Cnsmr_No" },
+                        { "data": "Consumer_Name" },
+                        { "data": "Phone_No" },
+                        { "data":"Catgry_Name"},
+                        {
+                            "class": "details-control",
+                            "orderable": false,
+                            "data": null, render: function (data, type, row) {
+                                return "<div class='btn-group' style='text-align:center;' ><a id='" + data.Sales_Id + "' onclick='return_id(this.id);' style='cursor:pointer;' title='Edit' class='btn btn-primary action_btn'><i class='jsgrid-button jsgrid-edit-button ti-pencil-alt btn btn-primary color-white'></i></a>" +
+                                    "<a id='" + data.Sales_Id + "' onclick='delete_id(this.id);' style='cursor:pointer;' title='Delete' class='btn btn-danger action_btn'><i class='jsgrid-button jsgrid-delete-button ti-trash btn btn-danger  color-white'></i></a></div>";
+                            }
+                        }
+                    ],
+                    "order": [[0, 'asc']]
+                });
+        }
+         //----------edit data---------------
+        function return_id(par) {
+        var canEdit = @Html.Raw(Json.Encode(canWrite1));
+        if (!canEdit) {
+        Swal.fire({
+        icon: 'error',
+        title: 'Oops',
+        text: 'YOU HAVE NO PERMISSION FOR EDIT!'
+        });
+        return;
+        }
+     $('#tab1').addClass('active');
+     $('#tab2').removeClass('active').addClass('closed');
+     $('#content1').show();
+     $('#content2').hide();
+     debugger;
+     $.ajax(
+         {
+             url: '/Transaction/EditSales?Id=' + par, // Replace with your controller and action
+             type: 'GET',
+             dataType: 'json',
+             success: function (data) {
+
+                 $('#hdnId').val(par),
+                     $('#txt_CategoryName').focus(),
+                     $('#txt_InvoiceNo').val(data.Invoice_No),
+                     $('#dt_bookingDate').val(data.Booking_Date),
+                     $('#Approximate_Delivery_Date').val(data.Approximate_Delivery_Date),
+                     $('#ddl_consumerId').val(data.Consumer_Id).trigger('change'),
+                     $('#txt_ConsumerName').val(data.Consumer_Name),
+                     $('#txt_PhoneNo').val(data.Phone_No),
+                     $('#txt_CategoryName').val(data.Catgry_Name),
+                     $('#txt_Area').val(data.Area_Info),
+                     $('#ddl_ProductName').val(data.Product_Id),
+                     $('#txt_actualcost').val(data.Per_Quantity_Price),
+                     $('#txt_MRP').val(data.Selling_Price),
+                     $('#txt_discount').val(data.Discount),
+                     $('#ddl_deliveryPartnerId').val(data.Delivery_Partner_Id),
+                     $('#ddl_paymentStatus').val(data.Payment_Status),
+                     $('#txt_initialPayment').val(data.Intial_Payment),
+                     $('#ddl_initialPaymentMode').val(data.Intial_Payment_Mode),
+                     $('#btn_submit').text('UPDATE');
+             },
+             error: function () {
+                 console.log('Error loading data.');
+             }
+         });
+ }
+ //-----------end here--------------
+
+    var table = document.getElementById("data_table");
+    var totalAmount = 0; // Variable to keep track of the total amount
+    var totalAmountRow;
+
+    function add_row() {
+        debugger;
+        var productNameDropdown = document.getElementById("ddl_ProductName");
+        var Quantity = document.getElementById("txt_Quantity").value;
+        var actualcost = document.getElementById("txt_actualcost").value;
+        var MRP = document.getElementById("txt_MRP").value;
+        var Rate = document.getElementById("txt_Rate").value;
+        var discount = document.getElementById("txt_discount").value;
+        var Amount = document.getElementById("txt_Amount").value;
+
+        // Check if any of the required fields are empty
+        if ($('#ddl_ProductName').val() === "") {
+            $('#ddl_ProductName').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Product Name cannot be blank!!'
+            });
+            return false;
+        }
+        if ($('#txt_Quantity').val() === "") {
+            $('#txt_Quantity').focus();
+
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Quantity cannot be blank!!'
+            });
+            return false;
+        }
+
+        var selectedProductName = productNameDropdown.options[productNameDropdown.selectedIndex].text;
+        var selectedProductId = productNameDropdown.options[productNameDropdown.selectedIndex].value;
+
+        // If the total amount row exists, delete it
+        if (totalAmountRow) {
+            table.deleteRow(table.rows.length - 1);
+        }
+
+        // Insert a new row
+        var row = table.insertRow(table.rows.length);
+        var cell1 = row.insertCell(0);
+        var cell2 = row.insertCell(1);
+        var cell3 = row.insertCell(2);
+        var cell4 = row.insertCell(3);
+        var cell5 = row.insertCell(4);
+        var cell6 = row.insertCell(5);
+        var cell7 = row.insertCell(6);
+        var cell8 = row.insertCell(7);
+        var cell9 = row.insertCell(8);
+        cell1.style.display = "none"; // Apply display: none directly to the td element
+        cell1.innerHTML = selectedProductId;
+        cell2.innerHTML = selectedProductName;
+        cell3.innerHTML = Quantity;
+        cell4.innerHTML = actualcost;
+        cell5.innerHTML = MRP;
+        cell6.innerHTML = Rate;
+        cell7.innerHTML = discount;
+        cell8.innerHTML = Amount;
+        cell9.innerHTML =
+            "<a onclick='delete_row(" + (table.rows.length-1) + ")' style='cursor:pointer;' title='Delete' class='btn btn-danger action_btn'><i class='jsgrid-button jsgrid-delete-button ti-trash btn btn-danger  color-white'></i></a>";
+
+        // Calculate amount for the current row
+        var rowAmount = parseFloat(Amount);
+
+        // Add the amount to the total
+        totalAmount += rowAmount;
+
+        clearForm(); // Clear form fields after adding a row
+       updateTotalAmountRow();
+    }
+
+    function updateTotalAmountRow() {
+        // Insert a new total amount row at the end
+        totalAmountRow = table.insertRow(table.rows.length);
+        totalAmountRow.id = "totalAmountRow";
+
+        var cell = totalAmountRow.insertCell(0);
+        cell.colSpan = 8; // Span the entire width of the table
+        cell.innerHTML = "Total Amount: " + totalAmount.toFixed(2);
+    }
+
+    function clearForm() {
+        // Clear the dropdown by setting the selectedIndex to the default option
+        $('#ddl_ProductName').val('').trigger('change');
+        $('#txt_Quantity').val('');
+        setTimeout(function () {
+            $('#txt_actualcost').val('').trigger('change');
+        }, 1000);
+        setTimeout(function () {
+            $('#txt_MRP').val('').trigger('change');
+        }, 1000);
+        setTimeout(function () {
+            $('#txt_Rate').val('').trigger('change');
+        }, 1000);
+        setTimeout(function () {
+            $('#txt_Amount').val('').trigger('change');
+        }, 1000);
+        $('#txt_discount').val('');
+    }
+
+    //function delete_row(no) {
+    //    debugger;
+    //    table.deleteRow(no);
+    //}
+    function delete_row(no) {
+        debugger;
+
+        // Get the amount of the row being deleted
+        var deletedAmount = table.rows[no].cells[7].innerHTML.trim();
+
+        totalAmount -= deletedAmount;
+
+        // Delete the row
+        table.deleteRow(no);
+
+        // Delete the total amount row
+        var totalAmountRowElement = document.getElementById("totalAmountRow");
+        if (totalAmountRowElement) {
+            table.deleteRow(totalAmountRowElement.rowIndex);
+        }
+
+        // Update the total amount row
+        updateTotalAmountRow();
+
+    }
+
+</script>

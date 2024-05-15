@@ -1,0 +1,126 @@
+﻿
+@{
+    ViewBag.Title = "SuccessfulTransactions";
+}
+
+@using GasAgencyManagementProject.Models.Transaction
+@using GasAgencyManagementProject.Models.Master
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>SucessTransaction</title>
+    <link href="~/css/style.css" type="text/css" rel="stylesheet" />
+</head>
+<body>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card bg-light">
+                <div>
+                    <h4 class="mb-0">
+                        SucessTransaction
+                    </h4>
+                </div>
+                <div class="tabs">
+                    @{
+                        Tbl_Mstr_Page mm = (Tbl_Mstr_Page)ViewData["PERMISSIONREAD"];
+                        Tbl_Mstr_Page mw = (Tbl_Mstr_Page)ViewData["PERMISSION"];
+
+                        bool canRead = mm.PERMISSION;
+                        bool canWrite = mw.PERMISSION;
+                    }
+                    @if (canRead && canWrite)
+                    {
+                        <ul class="nav nav-tabs" id="myTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tab1" data-toggle="tab" href="#content1" onclick="toggleTabs('content1')">ADD</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link " id="tab2" data-toggle="tab" href="#content2" onclick="toggleTabs('content2')">VIEW</a>
+                            </li>
+                        </ul>
+                    }
+                    else if (canRead)
+                    {
+                        <ul class="nav nav-tabs" id="myTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tab2" data-toggle="tab" href="#content2" onclick="toggleTabs('content2')">VIEW</a>
+                            </li>
+                        </ul>
+                    }
+                    else if (canWrite)
+                    {
+                        <ul class="nav nav-tabs" id="myTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tab1" data-toggle="tab" href="#content1" onclick="toggleTabs('content1')">ADD</a>
+                            </li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>You don't have permission to access this page.</p>
+                    }
+                </div>
+            </div>
+        </div>
+        @{
+            Tbl_Mstr_Page m = (Tbl_Mstr_Page)ViewData["PERMISSION"];
+            if (m.PERMISSION == true)
+            {
+                <div class="col-lg-12" id="content1">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="basic-form">
+                                <form>
+                                    <div class="row">
+                                        <div class="form-group col-md-3">
+
+                                            <button type="button" class="btn btn-primary" onclick="CategoryIUD()" id="btn_submit">COMPLEETED</button>
+
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <div class="form-group">
+                                                <button type="button" class="btn btn-primary" onclick="CategoryIUD()" id="btn_submit">RETURN </button>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        <!-- Your "View" content -->
+        <div class="col-lg-12" id="content2" style="display: none;">
+            <!-- View Content -->
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-title">
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped table-bordered" id="Tbl_Mstr_Category_View">
+                                <thead>
+                                    <tr class="headergrid">
+                                        <th style="text-align: center; width: 76px">Slno</th>
+                                        <th style="text-align: center;">Category Name</th>
+                                        <th style="text-align: center;">Category Status</th>
+                                        <th style="text-align: center;">Action</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- /# card -->
+            </div>
+            <!-- View Content -->
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,311 @@
+﻿@{
+    ViewBag.Title = "UserAccess";
+}
+@using GasAgencyManagementProject.Models.Master;
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="~/css/toggle.css" rel="stylesheet" />
+    <link href="~/css/style.css" rel="stylesheet">
+    <link href="~/css/Select2.css" rel="stylesheet" />
+    <script src="~/js/select2.js"></script>
+</head>
+<body>
+    <div class="col-lg-12">
+        <div class="card bg-light">
+            <h4>UserAccess Master</h4>
+        </div>
+    </div>
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="basic-form">
+                    <form>
+                        <div class="column">
+                            <div class="form-group  col-md-3 offset-md-4">
+                                <label> User Name</label>
+                                <select id="ddluserid" class="form-control mandatory sel1" tabindex="6" title="Select User Name">
+                                    <option value="" selected hidden>--Select User Name-- </option>
+                                    @{
+                                        List<Tbl_Mstr_User> lsttblMUserAccess = (List<Tbl_Mstr_User>)ViewData["User"];
+                                        if (lsttblMUserAccess != null)
+                                        {
+                                            foreach (var item in lsttblMUserAccess)
+                                            {
+                                                <option value="@item.User_Id">@item.User_Name</option>
+
+                                            }
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group col-md-3 offset-md-4">
+                                <label>Module Name</label>
+                                <select id="ddlModule" class="form-control mandatory" tabindex="7" title="Select Module Name">
+                                    <option value="0" selected hidden>--Select Module Name--</option>
+                                    @{
+                                        List<Tbl_Mstr_Module> lsttblModuleAccess = (List<Tbl_Mstr_Module>)ViewData["ModuleName"];
+                                        foreach (var item in lsttblModuleAccess)
+                                        {
+                                            <option value="@item.MID">@item.Module_Name</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <input type="hidden" id="hdnempid" />
+                            <div class="form-group  " id="divtbl">
+                                <label for="name" class="control-label offset-md-5 "><strong>Access Permission</strong></label>
+                                <div class=" offset-md-0">
+                                    <div style="width:auto; height: 400px; overflow: scroll; display: none;" id="divTable">
+                                        <table class="table table-bordered table-hover" id="tblfinal">
+                                        </table>
+                                    </div>
+                                </div>
+                                <br />
+                                @{
+                                    <div class="col-sm-12" align="center" id="divButton">
+                                        <button type="button" class="btn btn-primary" id="btnSubmit" style="margin-left:50px;" tabindex="8" title="Click Here for Submit" onclick="validate();">SUBMIT</button>
+                                        <button type="button" class="btn btn-danger" id="btnCancel" tabindex="9" title="Click here for Cancel" onclick="ClearAll();">CLEAR</button>
+
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+<script>
+    $(document).ready(function () {
+        $.noConflict();
+        document.getElementById("ddluserid").focus();
+        $('#divButton').css('display', 'none');
+        $('#ddlModule').on({
+            change: function () {
+                if ($('#ddlModule').val() != "0" && $('#ddluserid').val() != "0") {
+                    getPageList($('#ddlModule').val());
+                    // showacees($('#ddlModule').val());
+                    setTimeout(function () { showacees($('#ddlModule').val()); }, 100);
+                }
+                else if ($('#ddlModule').val() == "0" && $('#ddluserid').val() != "0") {
+                     Clear();
+                }
+            }
+        });
+        $('#ddluserid').on({
+            change: function () {
+                if ($('#ddluserid').val() != "0" && $('#ddlModule').val() != "0") {
+                    getPageList($('#ddlModule').val());
+                    // showacees($('#ddlModule').val());
+                    setTimeout(function () { showacees($('#ddlModule').val()); }, 100);
+                }
+                else if ($('#ddluserid').val() == "0" && $('#ddlModule').val() != "0") {
+                    Clear();
+                }
+            }
+        });
+        BindSelect2();
+    });
+    function BindSelect2() {
+        $(".sel1").select2({
+            tags: false,
+            placeholder: "--Select User  Name--",
+            allowClear: true
+        });
+        $(".sel1").on("select2:unselecting", function (e) {
+            ClearAll();
+        });
+    }
+        document.addEventListener('keydown', function (event) {
+            // Check if the pressed key is Escape (key code 27)
+            if (event.key === 'Escape') {
+                ClearAll();
+            }
+        });
+    //-------------------------------------------------------------------------------------
+    function getPageList(par) {
+        var ddlSubModule = document.getElementById('ddlSubModule');
+        var tblfinal = document.getElementById('tblfinal');
+        tblfinal.innerHTML = "";
+        document.getElementById("divTable").style.display = "none";
+        $.ajax({
+            type: 'post',
+            dataType: 'JSON',
+            url:'../Master/GetPageDtls',
+            data: {'Module_Id': par },
+            success: function (res) {
+                debugger;
+                if (res.length > 0) {
+                    document.getElementById("divTable").style.display = "block";
+                    document.getElementById('divButton').style.display = "block";
+                    var tbody = document.createElement('tbody');
+                    for (var i = 0; i < res.length; i++) {
+                        tbody.innerHTML = tbody.innerHTML + "<tr> " +
+                            " <td style='text-align:center;display:none;'>" + res[i].MID + "<input type='hidden' id='hdnMid' value='" + res[i].MID + "' /></td>" +
+                                              "<td style='text-align:center;display:none;'>" + res[i].PID + "<input type='hidden' id='hdnpageid' value='" + res[i].PID + "' /></td>" +
+                                             " <td style='text-align:center'>" + res[i].Page_Name + "<input type='hidden' id='hdnid' /></td>  " +
+                            "<td><div class='cont'><label class='switch'><input type='checkbox' id='readid' " + (res[i].ReadPermission ? 'checked' : '') + " onchange='check(this);'><span class='slider'></span></label>&nbsp;&nbsp;&nbsp;<h5 style='color:black;'>Read</h5></div></td> " +
+                            "<td><div class='cont'><label class='switch'><input type='checkbox' id='writeid' " + (res[i].WritePermission ? 'checked' : '') + " onchange='check(this);'><span class='slider'></span></label>&nbsp;&nbsp;&nbsp;<h5 style='color:black;'>Write</h5></div></td> " +
+                            "<td><div class='cont'><label class='switch'><input type='checkbox' id='viewid' " + (res[i].DeletePermission ? 'checked' : '') + " onchange='check(this);'><span class='slider'></span></label>&nbsp;&nbsp;&nbsp;<h5 style='color:black;'>Delete</h5></div></td> " +
+                                            "</tr> ";
+                    }
+                    tblfinal.appendChild(tbody);
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+    //-------------------------------------------------------------------------------------
+    function validate() {
+        var empname = document.getElementById("ddluserid");
+        var uid = document.getElementById("ddluserid").value;
+        if (empname.value == "0") {
+            alert("Please select user name.");
+            document.getElementById("ddluserid").focus();
+            empname.style.backgroundColor = "#FBE3E4";
+            return false;
+        }
+        var read = document.getElementById("readid").value;
+        var write = document.getElementById("writeid").value;
+        var delt = document.getElementById("viewid").value;
+        var ress = document.getElementById('divtbl').getElementsByTagName('table')[0];
+        var inputtext = ress.getElementsByTagName('input');
+        var inputval = [];
+        var count = 0;
+        var tblfinal1 = document.getElementById('tblfinal').children[0];
+        var finalstr = "";
+        for (var v = 0; v < tblfinal1.children.length; v++) {
+            if (finalstr == "")
+            { finalstr = tblfinal1.children[v].children[0].innerText + "," + tblfinal1.children[v].children[1].innerText; }
+            else {
+                finalstr = finalstr + ":" + tblfinal1.children[v].children[0].innerText + "," + tblfinal1.children[v].children[1].innerText ;
+            }
+            if (tblfinal1.children[v].children[3].getElementsByTagName('input')[0].checked == true) {
+                finalstr = finalstr + "," + "Y";
+            }
+            else { finalstr = finalstr + "," + "N"; }
+            if (tblfinal1.children[v].children[4].getElementsByTagName('input')[0].checked == true) {
+                finalstr = finalstr + "," + "Y";
+            }
+            else { finalstr = finalstr + "," + "N"; }
+            if (tblfinal1.children[v].children[5].getElementsByTagName('input')[0].checked == true) {
+                finalstr = finalstr + "," + "Y";
+            }
+            else { finalstr = finalstr + "," + "N"; }
+        }
+        //--------------------------------------------------
+        $.ajax({
+            type: 'post',
+            dataType: 'JSON',
+            @*url: '@Url.Action("SaveUserAccess")',*@
+            url:'../Master/SaveUserAccess',
+            data: { 'ListOfData': finalstr, 'userid': uid },
+            success: function (res) {
+                if (res == 'User Previledge Added Successfully') {
+                    $("#ddluserid").focus();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: res
+                    });
+                }
+                else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Opss',
+                        text: res
+                    });
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+        setTimeout(function () {
+            location.reload();
+        },2000);
+    }
+    //---------------------------------------------------------------------------------------
+    function Clear() {
+        var tblfinal1 = document.getElementById('tblfinal').children[0];
+        for (var v = 0; v < (isNaN(document.getElementById('tblfinal').children[0]) ? 0 : tblfinal1.children.length); v++) {
+                tblfinal1.children[v].children[3].getElementsByTagName('input')[0].checked = false;
+                tblfinal1.children[v].children[4].getElementsByTagName('input')[0].checked = false;
+                tblfinal1.children[v].children[5].getElementsByTagName('input')[0].checked = false;
+            }
+            document.getElementById("divTable").style.display = "none";
+            document.getElementById('divButton').style.display = "none";
+    }
+    function ClearAll() {
+        debugger;
+        document.getElementById("ddlModule").value = '0';
+        document.getElementById('ddluserid').value = '0';
+        $("#ddluserid").trigger('change');
+        var tblfinal1 = document.getElementById('tblfinal').children[0];
+        for (var v = 0; v < (isNaN(document.getElementById('tblfinal').children[0]) ? 0 : tblfinal1.children.length) ; v++) {
+            tblfinal1.children[v].children[3].getElementsByTagName('input')[0].checked = false;
+            tblfinal1.children[v].children[4].getElementsByTagName('input')[0].checked = false;
+            tblfinal1.children[v].children[5].getElementsByTagName('input')[0].checked = false;
+        }
+        document.getElementById("divTable").style.display = "none";
+        document.getElementById('divButton').style.display = "none";
+        $("#ddluserid").focus();
+    }
+    //-------------------------------------------------------------------------------------
+    function showacees(par) {      
+        var ddlModule = document.getElementById("ddlModule");
+        document.getElementById("hdnempid").value = document.getElementById("ddluserid").value;
+        var Uid = document.getElementById("ddluserid").value;
+        var Mid = document.getElementById("ddlModule").value;
+        $.ajax({
+            type: 'post',
+            dataType: 'JSON',
+            url:'../Master/showaccess',
+            data: { 'Id': Uid, 'MId': Mid },
+            success: function (res) {
+                debugger;
+                document.getElementById("divTable").style.display = "block";
+                document.getElementById('divButton').style.display = "block";
+                document.getElementById("ddluserid").value = document.getElementById("hdnempid").value;
+                var tblfinal1 = document.getElementById('tblfinal').children[0];
+                for (var h = 0; h < tblfinal1.children.length; h++) {
+                    tblfinal1.children[h].children[3].getElementsByTagName('input')[0].checked = false;
+                    tblfinal1.children[h].children[4].getElementsByTagName('input')[0].checked = false;
+                    tblfinal1.children[h].children[5].getElementsByTagName('input')[0].checked = false;
+                }
+                if (res.length > 0) {
+                    for (var i = 0; i < res.length; i++) {
+                        for (var v = 0; v < tblfinal1.children.length; v++) {
+                            if (tblfinal1.children[v].children[1].innerText == res[i].PID) {
+                                if (res[i].READ_.trim() == "Y") {
+                                    tblfinal1.children[v].children[3].getElementsByTagName('input')[0].checked = true;
+                                }
+                                else { tblfinal1.children[v].children[3].getElementsByTagName('input')[0].checked = false; }
+                                if (res[i].WRITE_.trim() == "Y") {
+                                    tblfinal1.children[v].children[4].getElementsByTagName('input')[0].checked = true;
+                                }
+                                else { tblfinal1.children[v].children[4].getElementsByTagName('input')[0].checked = false; }
+                                if (res[i].DELETE_.trim() == "Y") {
+                                    tblfinal1.children[v].children[5].getElementsByTagName('input')[0].checked = true;
+                                }
+                                else { tblfinal1.children[v].children[5].getElementsByTagName('input')[0].checked = false; }
+                            }
+                        }
+                    }
+                }
+                else {
+                    for (var v = 0; v < tblfinal1.children.length; v++) {
+                        tblfinal1.children[v].children[3].getElementsByTagName('input')[0].checked = false;
+                        tblfinal1.children[v].children[4].getElementsByTagName('input')[0].checked = false;
+                        tblfinal1.children[v].children[5].getElementsByTagName('input')[0].checked = false;
+                    }
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+            }
+        });
+    }
+</script>

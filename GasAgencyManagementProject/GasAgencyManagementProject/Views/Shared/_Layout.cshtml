@@ -1,0 +1,906 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<style>
+    .footer {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: #f8f9fa; /* Set your preferred background color */
+        padding: 10px 0; /* Add padding as needed */
+        left: 5%;
+    }
+
+    .select2-container--default .select2-selection--single:focus {
+        border-color: #80bdff; /* Blue color */
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Optional: Add a box-shadow for emphasis */
+    }
+
+    .select2-container--default.select2-container--focus .select2-selection--single {
+        border-color: #80bdff; /* Blue color */
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); /* Optional: Add a box-shadow for emphasis */
+    }
+
+    .btn.btn-primary:focus {
+        box-shadow: 0 0 0 0.25rem rgba(38, 143, 255, 0.5);
+    }
+
+    .changePS-container {
+        position: relative;
+    }
+
+    .toggle-currentpassword {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+    }
+
+    .toggle-newpassword {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+    }
+
+    .confirmpassword {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+    }
+</style>
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- theme meta -->
+    <meta name="theme-name" content="focus" />
+    <title>Focus Admin: Creative Admin Dashboard</title>
+    <!-- ================= Favicon ================== -->
+    <!-- Standard -->
+    <link rel="shortcut icon" href="http://placehold.it/64.png/000/fff">
+    <!-- Retina iPad Touch Icon-->
+    <link rel="apple-touch-icon" sizes="144x144" href="#">
+    <!-- Retina iPhone Touch Icon-->
+    <link rel="apple-touch-icon" sizes="114x114" href="#">
+    <!-- Standard iPad Touch Icon-->
+    <link rel="apple-touch-icon" sizes="72x72" href="#">
+    <!-- Standard iPhone Touch Icon-->
+    <link rel="apple-touch-icon" sizes="57x57" href="#">
+    <!-- Styles -->
+    <link href="~/css/lib/calendar2/pignose.calendar.min.css" rel="stylesheet">
+    <link href="~/css/lib/chartist/chartist.min.css" rel="stylesheet">
+    <link href="~/css/lib/font-awesome.min.css" rel="stylesheet">
+    <link href="~/css/lib/themify-icons.css" rel="stylesheet">
+    <link href="~/css/lib/owl.carousel.min.css" rel="stylesheet" />
+    <link href="~/css/lib/owl.theme.default.min.css" rel="stylesheet" />
+    <link href="~/css/lib/weather-icons.css" rel="stylesheet" />
+    <link href="~/css/lib/menubar/sidebar.css" rel="stylesheet">
+    <link href="~/css/lib/bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/lib/helper.css" rel="stylesheet">
+    <link href="~/css/style.css" rel="stylesheet">
+    <script src="~/js/jquery-3.7.1.js"></script>
+    <link href="~/Content/jquery.datetimepicker.css" rel="stylesheet" />
+    <script src="~/js/sweetalert2011.js"></script>
+    <link href="~/css/admin/CPWpopup.css" rel="stylesheet" />
+    <link href="~/css/LockScreen.css" rel="stylesheet" />
+</head>
+
+<body>
+
+
+
+    <div class="col-lg-12">
+
+        <div class="card-body">
+            <div class="basic-form">
+                <div id="myModal" class="modal">
+                    <div class="modal-content">
+                        <form>
+                            <span class="close" onclick="closeModal()">&times;</span>
+                            <div>
+                                <center><h1>Change Password</h1></center>
+                            </div>
+                            <label style="color:black; font-size:large"><b> Current Password </b></label>
+                            <div class="changePS-container">
+                                <input type="password" maxlength="10" tabindex="1" id="txtCurrentPassword" class="form-control" placeholder="Current Password">
+                                <span class="toggle-currentpassword" onclick="toggleCurrentPasswordVisibility()"><i class="fa fa-eye"></i></span>
+                            </div><br />
+                            <label style="color:black; font-size:large"><b> New Password </b></label>
+                            <div class="changePS-container">
+                                <input type="password" maxlength="10" tabindex="2" id="txtNewPassword" class="form-control" placeholder="New Password">
+                                <span class="toggle-newpassword" onclick="toggleNewPasswordVisibility()"><i class="fa fa-eye"></i></span>
+                            </div><br />
+                            <label style="color:black; font-size:large"><b> Confirm Password </b></label>
+                            <div class="changePS-container">
+                                <input type="password" maxlength="10" tabindex="3" id="txtConfirmPassword" class="form-control" placeholder="Confirm Password">
+                                <span class="confirmpassword" onclick="ConfirmPasswordVisibility()"><i class="fa fa-eye"></i></span>
+                            </div><br />
+                            <div class="offset-md-7">
+                                <button type="button" class="btn btn-primary" id="btn_submit1" tabindex="4" onclick="validate1()">CHANGE PASSWORD</button>
+                                <button type="button" class="btn btn-danger" id="btn_cancel1" tabindex="5" onclick="Clear()"> CLEAR </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div id="lock-screen" class="lock-screen">
+
+    </div>
+
+    <div class="sidebar sidebar-hide-to-small sidebar-shrink sidebar-gestures">
+        <div class="nano">
+            <div class="nano-content">
+                <ul>
+                    <div class="logo">
+                        <a href="index.html">
+                            <span>ABC Agency</span>
+                        </a>
+                    </div>
+                    <li id="Dash">
+                        <a id="IdDash" onclick="Menu(this.id,'Dash','Dash');" href="~/Master/DashBoard">
+                            <i class="ti-home"></i>Dashboard
+                        </a>
+                    </li>
+                    <li id="AdminStratorli">
+                        <a class="sidebar-sub-toggle">
+                            <i class="ti-crown" id="AdminStratorli"></i> Adminstrator <span class="sidebar-collapse-icon ti-angle-down"></span>
+                        </a>
+
+                        <ul id="Admin" class="treeview-menu">
+                            @{
+                                List<GasAgencyManagementProject.Models.Master.Tbl_Mstr_Page> obj1 = (List<GasAgencyManagementProject.Models.Master.Tbl_Mstr_Page>)Session["CHKACCSEE"];
+
+                                if (obj1 != null)
+                                {
+
+                                    foreach (var item in (List<GasAgencyManagementProject.Models.Master.Tbl_Mstr_Page>)Session["CHKACCSEE"])
+                                    {
+                                        if (@item.MID == 1 && (@item.PID >= 1 && @item.PID <= 3))
+                                        {
+                                            var path = "~/" + @item.Controller + "/" + @item.Action + "?pid=" + @item.PID;
+                                            <li><a onclick="Menu(this.id,'Admin','AdminStratorli');" id="@item.PID" href="@Url.Content(path)" title="@item.Page_Name"><i class="fa fa-circle-o"></i>@item.Page_Name</a></li>
+
+                                        }
+                                    }
+                                }
+                            }
+
+
+                        </ul>
+                    </li>
+
+
+                    <li id="Mastli">
+                        <a class="sidebar-sub-toggle">
+                            <i class="ti-dashboard"></i> Master <span class="sidebar-collapse-icon ti-angle-down"></span>
+                        </a>
+                        <ul id="Mast" class="treeview-menu">
+                            @{
+                                List<GasAgencyManagementProject.Models.Master.Tbl_Mstr_Page> obj2 = (List<GasAgencyManagementProject.Models.Master.Tbl_Mstr_Page>)Session["CHKACCSEE"];
+
+                                if (obj2 != null)
+                                {
+                                    foreach (var item in (List<GasAgencyManagementProject.Models.Master.Tbl_Mstr_Page>)Session["CHKACCSEE"])
+                                    {
+                                        if (@item.MID == 1 && @item.PID > 3)
+                                        {
+                                            var path = "~/" + @item.Controller + "/" + @item.Action + "?pid=" + @item.PID;
+                                            <li><a onclick="Menu(this.id,'Mast','Mastli');" id="@item.PID" href="@Url.Content(path)" title="@item.Page_Name"><i class="fa fa-circle-o"></i>@item.Page_Name</a></li>
+
+                                        }
+                                    }
+                                }
+                            }
+
+
+                        </ul>
+                    </li>
+
+                    <li id="Tranli">
+                        <a class="sidebar-sub-toggle">
+                            <i class="ti-briefcase"></i> Transaction <span class="sidebar-collapse-icon ti-angle-down"></span>
+                        </a>
+                        <ul id="Tran" class="treeview-menu">
+                            @{
+                                List<GasAgencyManagementProject.Models.Master.Tbl_Mstr_Page> obj3 = (List<GasAgencyManagementProject.Models.Master.Tbl_Mstr_Page>)Session["CHKACCSEE"];
+
+                                if (obj3 != null)
+                                {
+                                    foreach (var item in (List<GasAgencyManagementProject.Models.Master.Tbl_Mstr_Page>)Session["CHKACCSEE"])
+                                    {
+                                        if (@item.MID == 2)
+                                        {
+                                            var path = "~/" + @item.Controller + "/" + @item.Action + "?pid=" + @item.PID;
+                                            <li><a onclick="Menu(this.id,'Tran','Tranli');" id="@item.PID" href="@Url.Content(path)" title="@item.Page_Name"><i class="fa fa-circle-o"></i>@item.Page_Name</a></li>
+
+                                        }
+                                    }
+                                }
+                            }
+                        </ul>
+                    </li>
+                    <li id="Reportli">
+                        <a class="sidebar-sub-toggle">
+                            <i class="ti-agenda"></i>Report <span class="sidebar-collapse-icon ti-angle-down"></span>
+                        </a>
+                        <ul class="treeview-menu" id="Report">
+                            @{
+                                List<GasAgencyManagementProject.Models.Master.Tbl_Mstr_Page> obj4 = (List<GasAgencyManagementProject.Models.Master.Tbl_Mstr_Page>)Session["CHKACCSEE"];
+
+                                if (obj4 != null)
+                                {
+                                    foreach (var item in (List<GasAgencyManagementProject.Models.Master.Tbl_Mstr_Page>)Session["CHKACCSEE"])
+                                    {
+                                        if (@item.MID == 3)
+                                        {
+                                            var path = "~/" + @item.Controller + "/" + @item.Action + "?pid=" + @item.PID;
+                                            <li><a onclick="Menu(this.id,'Report','Reportli');" id="@item.PID" href="@Url.Content(path)" title="@item.Page_Name"><i class="fa fa-circle-o"></i>@item.Page_Name</a></li>
+
+                                        }
+                                    }
+                                }
+                            }
+                        </ul>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- /# sidebar -->
+
+    <div class="header">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="float-left">
+                        <div class="hamburger sidebar-toggle">
+                            <span class="line"></span>
+                            <span class="line"></span>
+                            <span class="line"></span>
+                        </div>
+                    </div>
+                    <div class="float-right">
+                        <div class="dropdown dib">
+                            <div class="header-icon" data-toggle="dropdown">
+                                <i class="ti-bell"></i>
+                                <div class="drop-down dropdown-menu dropdown-menu-right">
+                                    <div class="dropdown-content-heading">
+                                        <span class="text-left">Recent Notifications</span>
+                                    </div>
+                                    <div class="dropdown-content-body">
+                                        <ul>
+                                            <li>
+                                                <a href="#">
+                                                    <img class="pull-left m-r-10 avatar-img"
+                                                         src="~/images/avatar/3.jpg" alt="" />
+                                                    <div class="notification-content">
+                                                        <small class="notification-timestamp pull-right">
+                                                            02:34
+                                                            PM
+                                                        </small>
+                                                        <div class="notification-heading">Mr. John</div>
+                                                        <div class="notification-text">5 members joined today </div>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#">
+                                                    <img class="pull-left m-r-10 avatar-img"
+                                                         src="~/images/avatar/3.jpg" alt="" />
+                                                    <div class="notification-content">
+                                                        <small class="notification-timestamp pull-right">
+                                                            02:34
+                                                            PM
+                                                        </small>
+                                                        <div class="notification-heading">Mariam</div>
+                                                        <div class="notification-text">likes a photo of you</div>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#">
+                                                    <img class="pull-left m-r-10 avatar-img"
+                                                         src="~/images/avatar/3.jpg" alt="" />
+                                                    <div class="notification-content">
+                                                        <small class="notification-timestamp pull-right">
+                                                            02:34
+                                                            PM
+                                                        </small>
+                                                        <div class="notification-heading">Tasnim</div>
+                                                        <div class="notification-text">
+                                                            Hi Teddy, Just wanted to let you
+                                                            ...
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#">
+                                                    <img class="pull-left m-r-10 avatar-img"
+                                                         src="~/images/avatar/3.jpg" alt="" />
+                                                    <div class="notification-content">
+                                                        <small class="notification-timestamp pull-right">
+                                                            02:34
+                                                            PM
+                                                        </small>
+                                                        <div class="notification-heading">Mr. John</div>
+                                                        <div class="notification-text">
+                                                            Hi Teddy, Just wanted to let you
+                                                            ...
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li class="text-center">
+                                                <a href="#" class="more-link">See All</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dropdown dib">
+                            <div class="header-icon" data-toggle="dropdown">
+                                <i class="ti-email"></i>
+                                <div class="drop-down dropdown-menu dropdown-menu-right">
+                                    <div class="dropdown-content-heading">
+                                        <span class="text-left">2 New Messages</span>
+                                        <a href="email.html">
+                                            <i class="ti-pencil-alt pull-right"></i>
+                                        </a>
+                                    </div>
+                                    <div class="dropdown-content-body">
+                                        <ul>
+                                            <li class="notification-unread">
+                                                <a href="#">
+                                                    <img class="pull-left m-r-10 avatar-img"
+                                                         src="~/images/avatar/1.jpg" alt="" />
+                                                    <div class="notification-content">
+                                                        <small class="notification-timestamp pull-right">
+                                                            02:34
+                                                            PM
+                                                        </small>
+                                                        <div class="notification-heading">Michael Qin</div>
+                                                        <div class="notification-text">
+                                                            Hi Teddy, Just wanted to let you
+                                                            ...
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li class="notification-unread">
+                                                <a href="#">
+                                                    <img class="pull-left m-r-10 avatar-img"
+                                                         src="~/images/avatar/2.jpg" alt="" />
+                                                    <div class="notification-content">
+                                                        <small class="notification-timestamp pull-right">
+                                                            02:34
+                                                            PM
+                                                        </small>
+                                                        <div class="notification-heading">Mr. John</div>
+                                                        <div class="notification-text">
+                                                            Hi Teddy, Just wanted to let you
+                                                            ...
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#">
+                                                    <img class="pull-left m-r-10 avatar-img"
+                                                         src="~/images/avatar/3.jpg" alt="" />
+                                                    <div class="notification-content">
+                                                        <small class="notification-timestamp pull-right">
+                                                            02:34
+                                                            PM
+                                                        </small>
+                                                        <div class="notification-heading">Michael Qin</div>
+                                                        <div class="notification-text">
+                                                            Hi Teddy, Just wanted to let you
+                                                            ...
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#">
+                                                    <img class="pull-left m-r-10 avatar-img"
+                                                         src="~/images/avatar/2.jpg" alt="" />
+                                                    <div class="notification-content">
+                                                        <small class="notification-timestamp pull-right">
+                                                            02:34
+                                                            PM
+                                                        </small>
+                                                        <div class="notification-heading">Mr. John</div>
+                                                        <div class="notification-text">
+                                                            Hi Teddy, Just wanted to let you
+                                                            ...
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                            <li class="text-center">
+                                                <a href="#" class="more-link">See All</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dropdown dib">
+                            <div class="header-icon" data-toggle="dropdown">
+                                <span class="user-avatar">
+                                    John
+                                    <i class="ti-angle-down f-s-10"></i>
+                                </span>
+                                <div class="drop-down dropdown-profile dropdown-menu dropdown-menu-right">
+                                    <div class="dropdown-content-heading">
+                                        <img src="../images/smile.png" id="img" style="height:25px; width:35px; cursor:pointer;margin-top:1px;" tabindex="15" />
+
+                                    </div>
+                                    <div class="dropdown-content-body">
+                                        <ul>
+                                            <li>
+                                                <a href="#">
+                                                    <i class="ti-user"></i>
+                                                    <span>Profile</span>
+                                                </a>
+                                            </li>
+
+                                            <li>
+                                                <a href="#">
+                                                    <i class="ti-email"></i>
+                                                    <span>Inbox</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#" onclick="openChangePasswordModal()">
+                                                    <i class="ti-key"></i>
+                                                    <span>Change Password</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#" id="open-lock-screen">
+                                                    <i class="ti-lock"></i>
+                                                    <span>Lock Screen</span>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#" onclick="Logout()">
+                                                    <i class="ti-power-off"></i>
+                                                    Logout
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="content-wrap">
+        <div class="main">
+            <div class="container-fluid">
+
+
+
+                @RenderBody()
+
+
+
+
+
+                <section id="main-content">
+                    <!-- /# footer -->
+                    <footer class="footer">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="footer">
+                                    <h5><center>@DateTime.Now.Year © ABACUS SYSTEM & SOLUTION(P) LTD. - <a href="#">Abacus.com</a></center></h5>
+                                </div>
+                            </div>
+                        </div>
+                    </footer>
+                    <!-- /# footer -->
+                </section>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- jquery vendor -->
+
+    <script src="~/js/lib/jquery.nanoscroller.min.js"></script>
+    <!-- nano scroller -->
+    <script src="~/js/lib/menubar/sidebar.js"></script>
+    @*<script src="~/js/lib/preloader/pace.min.js"></script>*@
+    <!-- sidebar -->
+
+    <script src="~/js/lib/bootstrap.min.js"></script>
+    <script src="~/js/lib/jquery.min.js"></script>
+    <script src="~/js/select2.js"></script>
+    <script src="~/js/scripts.js"></script>
+    <!-- bootstrap -->
+
+    <script src="~/js/lib/calendar-2/moment.latest.min.js"></script>
+    <script src="~/js/lib/calendar-2/pignose.calendar.min.js"></script>
+    <script src="~/js/lib/calendar-2/pignose.init.js"></script>
+
+    <script src="~/js/lib/weather/jquery.simpleWeather.min.js"></script>
+    <script src="~/js/lib/weather/weather-init.js"></script>
+    <script src="~/js/lib/circle-progress/circle-progress.min.js"></script>
+    <script src="~/js/lib/circle-progress/circle-progress-init.js"></script>
+    <script src="~/js/lib/chartist/chartist.min.js"></script>
+    <script src="~/js/lib/sparklinechart/jquery.sparkline.min.js"></script>
+    <script src="~/js/lib/sparklinechart/sparkline.init.js"></script>
+    <script src="~/js/lib/owl-carousel/owl.carousel.min.js"></script>
+    <script src="~/js/lib/owl-carousel/owl.carousel-init.js"></script>
+    <!--scripit init -->
+    <script src="~/js/dashboard2.js"></script>
+    <script src="~/Scripts/date.js"></script>
+
+    <script src="~/Scripts/jquery.datetimepicker.js"></script>
+
+</body>
+
+</html>
+<script src="~/js/Loginjs/Login.js"></script>
+<script>
+    // Function to open the modal
+    function openChangePasswordModal() {
+        openModal();
+        initializePasswordChangeModal();
+        $('#txtCurrentPassword').attr("type", "password");
+        $('#txtNewPassword').attr("type", "password");
+        $('#txtConfirmPassword').attr("type", "password");
+    }
+
+    // Function to open the modal
+    function openModal() {
+        document.getElementById('myModal').style.display = 'block';
+
+    }
+    function initializePasswordChangeModal() {
+        // ... (your existing code for the modal)
+
+        // Move the focus and keypress event handling to a separate function
+        function handleKeyPressOnModal(e) {
+            if (e.which === 13) {
+                e.preventDefault();
+                validate1();
+            }
+        }
+        $('#txtCurrentPassword').focus();
+
+        // Add keypress event handling for the modal
+        $('form').off('keypress');
+        $('form').keypress(handleKeyPressOnModal);
+    }
+    function toggleCurrentPasswordVisibility() {
+        var passwordField = $("#txtCurrentPassword");
+        var toggleButton = $(".toggle-password i");
+
+        if (passwordField.attr("type") === "password") {
+            passwordField.attr("type", "text");
+            toggleButton.removeClass("fa-eye").addClass("fa-eye-slash");
+
+        } else {
+            passwordField.attr("type", "password");
+            toggleButton.removeClass("fa-eye-slash").addClass("fa-eye");
+
+        }
+    }
+    function toggleNewPasswordVisibility() {
+        var passwordField = $("#txtNewPassword");
+        var toggleButton = $(".toggle-password i");
+
+        if (passwordField.attr("type") === "password") {
+            passwordField.attr("type", "text");
+            toggleButton.removeClass("fa-eye").addClass("fa-eye-slash");
+
+        } else {
+            passwordField.attr("type", "password");
+            toggleButton.removeClass("fa-eye-slash").addClass("fa-eye");
+
+        }
+    }
+    function ConfirmPasswordVisibility() {
+        var passwordField = $("#txtConfirmPassword");
+        var toggleButton = $(".toggle-password i");
+
+        if (passwordField.attr("type") === "password") {
+            passwordField.attr("type", "text");
+            toggleButton.removeClass("fa-eye").addClass("fa-eye-slash");
+
+        } else {
+            passwordField.attr("type", "password");
+            toggleButton.removeClass("fa-eye-slash").addClass("fa-eye");
+
+        }
+    }
+    document.addEventListener('keydown', function (event) {
+        // Check if the pressed key is Escape (key code 27)
+        if (event.key === 'Escape') {
+            Clear();
+        }
+    });
+    // Function to close the modal
+    function closeModal() {
+        document.getElementById('myModal').style.display = 'none';
+        $('form').off('keypress');
+    }
+
+
+
+
+    var txtCurrentPassword = $('#txtCurrentPassword');
+    var txtNewPassword = $('#txtNewPassword');
+    var txtConfirmPassword = $('#txtConfirmPassword');
+    //------------------------------------------------------
+
+    function validate1() {
+        $('#txtCurrentPassword').focus();
+        if (ValidateChangePassword() == true) {
+
+            //-----------------------------------------------------------------
+            $.ajax({
+                type: 'post',
+                dataType: 'JSON',
+                url: '../Master/SavePass',
+                data: { 'Cpass': txtCurrentPassword.val(), 'Npass': txtNewPassword.val(), 'CFpass': txtConfirmPassword.val() },
+                success: function (res) {
+
+                    debugger;
+                    if (res === "Problem Accessing Database. Please Try Again") {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops',
+                            text: res,
+                            didOpen: () => {
+                                // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                setTimeout(() => {
+                                    const okButton = document.querySelector('.swal2-confirm');
+                                    if (okButton) {
+                                        okButton.focus();
+                                    }
+                                }, 0);
+                            },
+                        })
+                        Clear();
+                        txtCurrentPassword.focus();
+                    }
+                    else if (res === "Password Changed  Successfully") {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated',
+                            text: res,
+                            didOpen: () => {
+                                // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                setTimeout(() => {
+                                    const okButton = document.querySelector('.swal2-confirm');
+                                    if (okButton) {
+                                        okButton.focus();
+                                    }
+                                }, 0);
+                            },
+                        })
+                        Clear();
+                        $('#txtCurrentPassword').focus();
+
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops',
+                            text: res,
+                            didOpen: () => {
+                                // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                setTimeout(() => {
+                                    const okButton = document.querySelector('.swal2-confirm');
+                                    if (okButton) {
+                                        okButton.focus();
+                                    }
+                                }, 0);
+                            },
+                        })
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log(xhr.status);
+                    console.log(thrownError);
+                    alert("An error occurred during the AJAX request. Please try again.");
+                }
+            });
+
+
+        }
+    }
+
+    //--------------------
+    function ValidateChangePassword() {
+        //var Errormsg = new Array();
+        debugger;
+        if ($('#txtCurrentPassword').val() == "") {
+            $('#txtCurrentPassword').focus();
+            Swal.fire(
+                {
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'Current Password can not be left blank!!',
+                    didOpen: () => {
+                        // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                        setTimeout(() => {
+                            const okButton = document.querySelector('.swal2-confirm');
+                            if (okButton) {
+                                okButton.focus();
+                            }
+                        }, 0);
+                    },
+                }
+            );
+            return false;
+            //Errormsg.push('Current Password can not be left blank');
+        }
+        if ($('#txtNewPassword').val() == "") {
+            $('#txtNewPassword').focus();
+            Swal.fire(
+                {
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'New Password can not be left blank!!',
+                    didOpen: () => {
+                        // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                        setTimeout(() => {
+                            const okButton = document.querySelector('.swal2-confirm');
+                            if (okButton) {
+                                okButton.focus();
+                            }
+                        }, 0);
+                    },
+                }
+
+            );
+            $('#txtNewPassword').focus();
+            return false;
+        }
+        if ($('#txtConfirmPassword').val() == "") {
+            $('#txtConfirmPassword').focus();
+            Swal.fire(
+                {
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'Confirm Password can not be left blank!!',
+                    didOpen: () => {
+                        // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                        setTimeout(() => {
+                            const okButton = document.querySelector('.swal2-confirm');
+                            if (okButton) {
+                                okButton.focus();
+                            }
+                        }, 0);
+                    },
+                }
+            );
+            return false;
+
+        }
+        if ($('#txtCurrentPassword').val() != "" && $('#txtNewPassword').val() != "") {
+            if ($('#txtCurrentPassword').val() == $('#txtNewPassword').val()) {
+                $('#txtNewPassword').focus();
+                Swal.fire(
+                    {
+                        icon: 'info',
+                        title: 'Info',
+                        text: 'New password must be different from current passwords used!!',
+                        didOpen: () => {
+                            // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                            setTimeout(() => {
+                                const okButton = document.querySelector('.swal2-confirm');
+                                if (okButton) {
+                                    okButton.focus();
+                                }
+                            }, 0);
+                        },
+                    }
+
+                );
+                return false;
+            }
+        }
+        if ($('#txtNewPassword').val() != $('#txtConfirmPassword').val()) {
+            $('#txtConfirmPassword').focus();
+            Swal.fire(
+                {
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'New Password & Confirm Password Should be Same!!',
+                    didOpen: () => {
+                        // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                        setTimeout(() => {
+                            const okButton = document.querySelector('.swal2-confirm');
+                            if (okButton) {
+                                okButton.focus();
+                            }
+                        }, 0);
+                    },
+                }
+
+            );
+            return false;
+            //Errormsg.push('New Password & Confirm Password Should be Same');
+        }
+
+
+        return true;
+    }
+    //-------------------------
+    function Clear() {
+        $('#txtCurrentPassword').val('');
+        $('#txtNewPassword').val('');
+        $('#txtConfirmPassword').val('');
+        $('#txtCurrentPassword').focus();
+    }
+
+
+    //logout
+
+
+    function Logout() {
+        $.ajax({
+            type: 'get',
+            url: '/Login/Logout',
+            success: function () {
+                // Clear browser history
+                window.location.replace('/Login/Login');
+                window.history.replaceState({}, document.title, window.location.pathname);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                // Handle errors if needed
+                console.error("Error during logout:", thrownError);
+            }
+        });
+    }
+
+    // lock screen
+    const lockScreenButton = document.getElementById('open-lock-screen');
+    const lockScreen = document.getElementById('lock-screen');
+
+    lockScreenButton.addEventListener('click', () => {
+        lockScreen.classList.add("lock-screen-active");
+    });
+
+    // Capture clicks on the entire lock screen element
+    lockScreen.addEventListener('click', () => {
+        // Redirect to the previous page when the lock screen is clicked
+        lockScreen.classList.remove("lock-screen-active");
+    });
+
+    document.addEventListener('keydown', (event) => {
+        // Check if the pressed key is Enter (key code 13) or Spacebar (key code 32)
+        if (event.key === 'Enter' || event.key === ' ') {
+            lockScreen.classList.remove("lock-screen-active");
+        }
+    });
+
+</script>

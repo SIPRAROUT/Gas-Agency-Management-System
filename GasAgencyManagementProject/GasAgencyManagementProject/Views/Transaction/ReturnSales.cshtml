@@ -1,0 +1,472 @@
+﻿
+@{
+    ViewBag.Title = "ReturnSales";
+}
+@using GasAgencyManagementProject.Models.Transaction
+@using GasAgencyManagementProject.Models.Master
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Final Settlement </title>
+    <link href="~/css/style.css" type="text/css" rel="stylesheet" />
+    <link href="~/css/Select2.css" rel="stylesheet" />
+    <script src="~/js/select2.js"></script>
+</head>
+<body>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card bg-light">
+                <div>
+                    <h4 class="mb-0">Return Sales </h4>
+                </div>
+                <div class="tabs">
+                    @{
+                        Tbl_Mstr_Page mm = (Tbl_Mstr_Page)ViewData["PERMISSIONREAD"];
+                        Tbl_Mstr_Page mw = (Tbl_Mstr_Page)ViewData["PERMISSION"];
+
+                        bool canRead = mm.PERMISSION;
+                        bool canWrite = mw.PERMISSION;
+                    }
+                    @if (canRead && canWrite)
+                    {
+                        <ul class="nav nav-tabs" id="myTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tab1" data-toggle="tab" href="#content1" onclick="toggleTabs('content1')">ADD</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link " id="tab2" data-toggle="tab" href="#content2" onclick="toggleTabs('content2')">VIEW</a>
+                            </li>
+                        </ul>
+                    }
+                    else if (canRead)
+                    {
+                        <ul class="nav nav-tabs" id="myTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tab2" data-toggle="tab" href="#content2" onclick="toggleTabs('content2')">VIEW</a>
+                            </li>
+                        </ul>
+                    }
+                    else if (canWrite)
+                    {
+                        <ul class="nav nav-tabs" id="myTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tab1" data-toggle="tab" href="#content1" onclick="toggleTabs('content1')">ADD</a>
+                            </li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>You don't have permission to access this page.</p>
+                    }
+                </div>
+            </div>
+        </div>
+        @{
+            Tbl_Mstr_Page m = (Tbl_Mstr_Page)ViewData["PERMISSION"];
+            if (m.PERMISSION == true)
+            {
+                <div class="col-lg-12" id="content1">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="basic-form">
+                                <form>
+                                    <div class="row">
+                                        <div class="form-group col-md-3">
+                                            <label>Invoice No</label>
+                                            <select class="form-control sel1" id="ddl_InvoiceNo" tabindex="6">
+                                                <option value="" selected hidden>--Select Invoice No--</option>
+                                                @{
+                                                    List<Tbl_Trns_Final_Settlement> lstsales = (List<Tbl_Trns_Final_Settlement>)ViewData["return"];
+                                                    if (lstsales != null)
+                                                    {
+                                                        foreach (var item in lstsales)
+                                                        {
+                                                            if (item.Delivery_Status == "Return")
+                                                            {
+                                                                <option value="@item.Delivery_Id">@item.Invoice_No</option>
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Consumer Name</label>
+                                            <input type="text" class="form-control" id="txt_ConsumerName" placeholder="consumer name " readonly>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Phone No</label>
+                                            <input type="text" maxlength="10" class="form-control" id="txt_PhoneNo" placeholder="Phone No" oninput="validateInput(this)" readonly>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Area</label>
+                                            <input type="text" class="form-control" id="txt_Area" placeholder="Area" readonly>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Delivery Partner Name</label>
+                                            <input type="text" class="form-control" id="txt_DeliveryPartnerName" placeholder="Delivery Partner Name" readonly>
+                                        </div>
+
+                                        <div class="form-group col-md-3">
+                                            <div class="form-group">
+                                                <label>Initial Payment</label>
+                                                <input type="text" class="form-control" id="txt_initialPayment" placeholder="Initial Payment" tabindex="13" readonly>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group col-md-3">
+                                            <label>Initial Payment Mode</label>
+                                            <input type="text" class="form-control" id="ddl_initialPaymentMode" placeholder="Initial Payment Mode" tabindex="13" readonly>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Total Amount</label>
+                                            <input type="text" class="form-control" id="txt_totalamount" placeholder="total amount" tabindex="13" readonly>
+                                        </div>
+                                    </div>
+                                    <div id="wrapper">
+                                        <table class="table table-bordered" align='center' cellspacing=2 cellpadding=5 id="data_table" border=1>
+                                            <tr>
+                                                <th style="display:none;">Id</th>
+                                                <th>Product Name</th>
+                                                <th>Quantity</th>
+                                                <th style="display:none;">Actual Cost</th>
+                                                <th>MRP</th>
+                                                <th>Discount</th>
+                                                <th>Rate</th>
+                                                <th>Amount</th>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <br />
+                                    <div class="row">
+                                        <div class="form-group col-md-3">
+                                            <label>Delivery Status</label>
+                                            <select class="form-control" id="ddl_DeliveryStatus" tabindex="14">
+                                                <option value="" selected hidden>--Select Delivery Status--</option>
+                                                <option value="Dispatch">Dispatch</option>
+                                                <option value="Cancel">Cancel</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <div class="form-group">
+                                                <label>Final Payment</label>
+                                                <input type="text" class="form-control" id="txt_FinalPayment" placeholder="Final Payment" tabindex="13" readonly>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group col-md-3">
+                                            <label>Final Payment Mode</label>
+                                            <select class="form-control" id="ddl_FinalPaymentMode" tabindex="14">
+                                                <option value="" selected hidden>--Select Final Payment Mode--</option>
+                                                <option value="UPI">UPI</option>
+                                                <option value="Netbanking">Netbanking</option>
+                                                <option value="COD">COD</option>
+                                                <option value="Credit Card">Credit Card</option>
+                                                <option value="Debit Card">Debit Card</option>
+                                                <option value="PayPal">PayPal</option>
+                                                <option value="Bank Transfer">Bank Transfer</option>
+                                                <option value="Google Pay">Google Pay</option>
+                                                <option value="PhonePe">PhonePe</option>
+                                                <option value="Apple Pay">Apple Pay</option>
+                                            </select>
+                                        </div>
+
+                                    </div>
+
+
+                                    <div class="row  ">
+                                        <div class="col-md-3 posit">
+                                            <button type="button" class="btn btn-primary" onclick="ReturnSalesIUD()" id="btn_submit" tabindex="8">SAVE</button>
+                                            <button type="button" class="btn btn-danger" id="btn_cancel" tabindex="9" onclick="clearForm()">CLEAR</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        <!-- Your "View" content -->
+        <div class="col-lg-12" id="content2" style="display: none;">
+            <!-- View Content -->
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-title">
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped table-bordered" id="Tbl_Mstr_Category_View">
+                                <thead>
+                                    <tr class="headergrid">
+                                        <th style="text-align: center; width: 76px">Slno</th>
+                                        <th style="text-align: center;">Category Name</th>
+                                        <th style="text-align: center;">Category Status</th>
+                                        <th style="text-align: center;">Action</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- /# card -->
+            </div>
+            <!-- View Content -->
+        </div>
+    </div>
+</body>
+</html>
+
+<input type="hidden" id="hdnId" value="0" />
+
+<link href="~/css/Datatable.css" rel="stylesheet" />
+<script src="~/js/DataTable.js"></script>
+<script>
+    $(document).ready(function () {
+     debugger;
+     $.noConflict();
+     @{
+          Tbl_Mstr_Page mm1 = ViewData["PERMISSIONREAD"] as Tbl_Mstr_Page;
+          Tbl_Mstr_Page mw1 = ViewData["PERMISSION"] as Tbl_Mstr_Page;
+          bool canRead1 = mm1?.PERMISSION ?? false;
+          bool canWrite1 = mw1?.PERMISSION ?? false;
+     }
+    // Use JavaScript variables to store the values of canRead and canWrite
+     var canReadAccess = @Html.Raw(Json.Encode(canRead1));
+     var canWriteAccess = @Html.Raw(Json.Encode(canWrite1));
+        BindSelect2();
+    });
+
+    function BindSelect2() {
+        debugger;
+        $(".sel1").select2({
+            tags: false,
+            placeholder: "--Select Invoice No--",
+            allowClear: true
+        });
+    }
+    $('#ddl_InvoiceNo').on('change', function () {
+        debugger;
+        var deliverId = $(this).val();
+
+        // Make an AJAX request to fetch sales data based on the selected invoice number
+        $.ajax({
+            type: 'GET',
+            url: '/Transaction/CasEditreturn',
+            data: { Id: deliverId },
+            success: function (deliver) {
+                console.log('Dynamic sales data:', deliver);
+
+                // Update table data based on the received sales data
+                if (deliver != null) {
+                    var table = $('#data_table');
+
+                    // Clear existing rows in the table
+                    table.find('tr:gt(0)').remove();
+
+                    // Check if DT_Product is present and not null
+                    if (deliver.DT_FinalSettlement !== null) {
+                        // Check if DT_Product is an array with elements
+                        if (Array.isArray(deliver.DT_FinalSettlement) && deliver.DT_FinalSettlement.length > 0) {
+                            // Loop through the products and add rows to the table
+                            $.each(deliver.DT_FinalSettlement, function (index, product) {
+                                var row = '<tr>' +
+                                    '<td style="display:none;">' + product.Product_Id + '</td>' +
+                                    '<td>' + product.Product_Name + '</td>' +
+                                    '<td>' + product.Quantity + '</td>' +
+                                    '<td  style="display:none;">' + product.Actual_Cost + '</td>' +
+                                    '<td>' + product.MRP + '</td>' +
+                                    '<td>' + product.Discount + '</td>' +
+                                    '<td>' + product.Rate + '</td>' +
+                                    '<td style="text-align:left;">' + product.Amount + '</td>' +
+                                    '</tr>';
+                                table.append(row);
+                            });
+
+                            // Add event listener for the dynamically added delete buttons
+                            $('.delete-btn').on('click', function (e) {
+                                e.preventDefault();
+                                // Implement your delete logic here
+                                // You can access the corresponding row data using $(this).closest('tr') and retrieve the Product_Id or other data
+                            });
+                        } else {
+                            console.log('No products found.');
+                        }
+                    } else {
+                        console.log('DT_FinalSettlement is null.');
+                    }
+
+                    // Update other fields based on the sales data
+                    $('#txt_ConsumerName').val(deliver.Consumer_Name);
+                    $('#txt_PhoneNo').val(deliver.Phone_No);
+                    $('#txt_Area').val(deliver.Area_Info);
+                    $('#txt_DeliveryPartnerName').val(deliver.Delivery_Name);
+                    $('#txt_initialPayment').val(deliver.Intial_Payment);
+                    $('#ddl_initialPaymentMode').val(deliver.Intial_Payment_Mode);
+                    $('#txt_totalamount').val(deliver.Total_Amount);
+                    $('#txt_FinalPayment').val(deliver.Final_Payment);
+
+                } else {
+                    console.log('No deliver data found.');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Error fetching deliver data. Status: ' + status + ', Error: ' + error);
+            }
+        });
+    });
+    function ReturnSalesIUD() {
+        debugger;
+        var ButtonData = $("#btn_submit").text();
+        var action = "";
+        if (ButtonData === "SAVE") {
+            action = "INSERT";
+        }
+        else {
+            action = "UPDATE";
+        }
+        $('#ddl_consumerId').focus();
+        var Items = [];
+        for (var i = 1; i < document.getElementById("data_table").children[0].children.length; i++) {
+            var item1 = {};
+            item1.Product_Id = document.getElementById("data_table").children[0].children[i].children[0].innerHTML;
+            item1.Product_Name = document.getElementById("data_table").children[0].children[i].children[1].innerHTML;
+            item1.Quantity = document.getElementById("data_table").children[0].children[i].children[2].innerHTML;
+            item1.Actual_Cost = document.getElementById("data_table").children[0].children[i].children[3].innerHTML;
+            item1.MRP = document.getElementById("data_table").children[0].children[i].children[4].innerHTML;
+            item1.Discount = document.getElementById("data_table").children[0].children[i].children[6].innerHTML;
+            item1.Rate = document.getElementById("data_table").children[0].children[i].children[5].innerHTML;
+            item1.Amount = document.getElementById("data_table").children[0].children[i].children[7].innerHTML;
+            Items.push(item1);
+        }
+        if (ValidateStock() == true) {
+            console.log(Items);
+            $.ajax({
+                type: 'post',
+                dataType: 'json',
+                url: '/Transaction/ReturnSalesIUD',
+                data: {
+                    'Delivery_Id': $('#hdnId').val(),
+                    'Invoice_No': $('#ddl_InvoiceNo').val(),
+                    'Consumer_Name': $('#txt_ConsumerName').val(),
+                    'Phone_No': $('#txt_PhoneNo').val(),
+                    'Consumer_Id': $('#ddl_consumerId').val(),
+                    'Area_Info': $('#txt_Area').val(),
+                    'Total_Amount': $('#txt_totalamount').val(),
+                    'Delivery_Name': $('#txt_DeliveryPartnerName').val(),
+                    'Intial_Payment': $('#txt_initialPayment').val(),
+                    'Intial_Payment_Mode': $('#ddl_initialPaymentMode').val(),
+                    'DT_ReturnSales': Items,
+                    'Delivery_Status': $('#ddl_DeliveryStatus').val(),
+                    'Final_Payment': $('#txt_FinalPayment').val(),
+                    'Final_Payment_Mode': $('#ddl_FinalPaymentMode').val(),
+                    'Action': action
+                },
+                success: function (res) {
+                    debugger;
+                    if (res == 'Return Sales Transaction Created Successfully') {
+                        clearForm();
+                        // ClearSales();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: res,
+                            didOpen: () => {
+                                // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                setTimeout(() => {
+                                    const okButton = document.querySelector('.swal2-confirm');
+                                    if (okButton) {
+                                        okButton.focus();
+                                    }
+                                }, 0);
+                            },
+                        })
+                        location.reload(true);
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops',
+                            text: res,
+                            didOpen: () => {
+                                // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                setTimeout(() => {
+                                    const okButton = document.querySelector('.swal2-confirm');
+                                    if (okButton) {
+                                        okButton.focus();
+                                    }
+                                }, 0);
+                            },
+                        })
+                        clearForm();
+                        // ClearSales();
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+        }
+    }
+    function ValidateStock() {
+        if ($('#ddl_InvoiceNo').val() === "") {
+            $('#ddl_InvoiceNo').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Invoice No cannot be blank!!'
+            });
+            return false;
+        }
+
+        if ($('#ddl_DeliveryStatus').val() === "") {
+            $('#ddl_DeliveryStatus').focus();
+
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Payment Status cannot be balnk!!'
+            });
+            return false;
+        }
+        if ($('#txt_FinalPayment').val() === "") {
+            $('#txt_FinalPayment').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Final Payment cannot be  blank!!'
+            });
+            return false;
+        }
+
+        if ($('#ddl_FinalPaymentMode').val() === "") {
+            $('#ddl_FinalPaymentMode').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Final Payment Mode cannot be  blank!!'
+            });
+            return false;
+        }
+
+        return true;
+    }
+    function clearForm() {
+        $('#ddl_InvoiceNo').val('').trigger('change');
+        $('#txt_ConsumerName').val('');
+        $('#txt_PhoneNo').val('');
+        $('#txt_Area').val('');
+        $('#txt_DeliveryPartnerName').val('');
+        $('#txt_initialPayment').val('');
+        $('#ddl_initialPaymentMode').val('');
+        $('#txt_totalamount').val('');
+        $('#ddl_DeliveryStatus').val('');
+        $('#txt_FinalPayment').val('');
+        $('#ddl_FinalPaymentMode').val('');
+        // Clear the data table
+        var table = $('#data_table');
+        table.find('tr:gt(0)').remove();
+    }
+</script>

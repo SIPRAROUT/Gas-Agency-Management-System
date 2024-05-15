@@ -1,0 +1,1029 @@
+﻿@{
+    ViewBag.Title = "Consumer";
+}
+@using GasAgencyManagementProject.Models.Master;
+@model GasAgencyManagementProject.Models.Master.Tbl_Mstr_Consumer
+<link href="~/css/style.css" rel="stylesheet" />
+<link href="~/css/Select2.css" rel="stylesheet" />
+<script src="~/js/select2.js"></script>
+<script src="~/Scripts/jquery.datetimepicker.js"></script>
+<head>
+    <style>
+        td.details-control2 {
+            background: url('../images/details_open.png') no-repeat center center;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card bg-light">
+                <div>
+                    <h4 class="mb-0">Consumer Master</h4>
+                </div>
+                <div class="tabs">
+                    @{
+                        Tbl_Mstr_Page mm = (Tbl_Mstr_Page)ViewData["PERMISSIONREAD"];
+                        Tbl_Mstr_Page mw = (Tbl_Mstr_Page)ViewData["PERMISSION"];
+                        bool canRead = mm.PERMISSION;
+                        bool canWrite = mw.PERMISSION;
+                    }
+                    @if (canRead && canWrite)
+                    {
+                        <ul class="nav nav-tabs" id="myTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tab1" data-toggle="tab" href="#content1" onclick="toggleTabs('content1')">ADD</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link " id="tab2" data-toggle="tab" href="#content2" onclick="toggleTabs('content2')">VIEW</a>
+                            </li>
+                        </ul>
+                    }
+                    else if (canRead)
+                    {
+                        <ul class="nav nav-tabs" id="myTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tab2" data-toggle="tab" href="#content2" onclick="toggleTabs('content2')">VIEW</a>
+                            </li>
+                        </ul>
+                    }
+                    else if (canWrite)
+                    {
+                        <ul class="nav nav-tabs" id="myTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tab1" data-toggle="tab" href="#content1" onclick="toggleTabs('content1')">ADD</a>
+                            </li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>You don't have permission to access this page.</p>
+                    }
+                </div>
+            </div>
+        </div>
+        @{
+            Tbl_Mstr_Page m = (Tbl_Mstr_Page)ViewData["PERMISSION"];
+            if (m.PERMISSION == true)
+            {
+                <div class="col-lg-12" id="content1">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="basic-form">
+                                <form>
+                                    <div class="row">
+                                        <div class="form-group  col-md-3">
+                                            <label>Category</label>
+                                            <select class="form-control sel1" id="ddl_CategoryType" tabindex="6">
+                                                <option value="" selected hidden>--Select Category Type-- </option>
+                                                @{
+                                                    List<Tbl_Mstr_Category> lstCategory = (List<Tbl_Mstr_Category>)ViewData["Category"];
+                                                    if (lstCategory != null)
+                                                    {
+                                                        foreach (var item in lstCategory)
+                                                        {
+                                                            if (item.Catgry_Status == "Active")
+                                                            {
+                                                                <option value="@item.Catgry_Id">@item.Catgry_Name</option>
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Consumer No</label>
+                                            <input type="text" class="form-control" placeholder="Consumer No" id="txt_ConsumerNo" readonly>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Consumer Name</label>
+                                            <input type="text" class="form-control" placeholder="Consumer Name" id="txt_consumerName" tabindex="8">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label> Phone No</label>
+                                            <input type="text" class="form-control" placeholder="Phone No" maxlength="10" id="txt_phoneNo" tabindex="9" oninput="validateInput(this)">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-group col-md-3">
+                                            <label> Email</label>
+                                            <input type="text" class="form-control" placeholder="Email" id="txt_Email" tabindex="10">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Gender</label>
+                                            <select class="form-control" id="dll_Gender" tabindex="11">
+                                                <option value="" selected hidden>--Select Gender--</option>
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group  col-md-3">
+                                            <label>Area</label>
+                                            <select class="form-control sel2" id="ddl_Area" tabindex="12">
+                                                <option value="" selected hidden>--Select Area--</option>
+                                                @{
+                                                    List<Tbl_Mstr_Area> lstArea = (List<Tbl_Mstr_Area>)ViewData["Area"];
+                                                    if (lstArea != null)
+                                                    {
+                                                        foreach (var item in lstArea)
+                                                        {
+                                                            <option value="@item.Area_Id">@item.Area_Info</option>
+                                                        }
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label for="Address">Address</label>
+                                            <textarea class="form-control" rows="3" placeholder="Address" id="txt_address" tabindex="13"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-group col-md-3">
+                                            <label for="Id_Proof_Type">ID Proof Type</label>
+                                            <select class="form-control" id="ddl_Idprooftype" tabindex="14">
+                                                <option value="" selected hidden>--Select ID Proof Type--</option>
+                                                <option value="1">AADHAAR CARD</option>
+                                                <option value="2">PAN CARD</option>
+                                                <option value="3">DRIVING LICENSE</option>
+                                                <option value="4">VOTER ID</option>
+                                                <option value="5">PASSPORT</option>
+                                                <option value="6">RATION CARD</option>
+                                                <option value="7">BANK PASSBOOK</option>
+                                                <option value="8">ELECTRICITY BILL</option>
+                                                <option value="9">TELEPHONE BILL</option>
+                                                <option value="10">OTHERS</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>ID Proof No</label>
+                                            <input type="text" class="form-control" placeholder=" ID proof No" id="txt_IdProofNo" tabindex="15">
+                                        </div>
+                                        <div class="form-group col-md-3">
+
+                                            <label>ID Proof Document</label>
+                                            <div>
+                                                <input type="file" class="form-control-file" id="Document_Upload" size="40" style="display: none;">
+                                                <img src="~/images/UploadDocument.png" id="img2" style="height: 55px; width: 75px; cursor: pointer; margin-top: 5px;" tabindex="16" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group col-sm-3">
+                                            <label for="Photo">Photo</label>
+                                            <div>
+                                                <img src="~/images/pUpload1.png" id="img1" style="height: 55px; width: 75px; cursor: pointer; margin-top: 5px;" tabindex="17" />
+                                                <input type="file" class="form-control-file" id="Photo_Upload" size="40" style="display: none;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-group col-md-3">
+                                            <label for="Cnsmr_Date">Joining Date</label>
+                                            <input type="text" class="datepicker form-control" id="dt_ConsumerJoiningDate" placeholder="Joining Date" tabindex="18">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Status</label>
+                                            <select class="form-control" id="ddl_Status" tabindex="19">
+                                                <option value="" hidden>--Select status--</option>
+                                                <option value="Active" selected>Active</option>
+                                                <option value="InActive">In Active</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 posit">
+                                            <button type="button" class="btn btn-primary" onclick="ConsumerIUD()" id="btn_submit" tabindex="20">SUBMIT</button>
+                                            <button type="button" class="btn btn-danger" id="btn_cancel" onclick="ClearConsumer()" tabindex="21">CLEAR</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        <!-- Your "View" content -->
+        <div class="col-lg-12" id="content2" style="display: none;">
+            <!-- View Content -->
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-title">
+                    </div>
+                    <div class="card-body no-padding">
+                        <div class="table-responsive">
+                            <table class="table table-bordered  table-hover table-striped" id="Tbl_Mstr_ConsumerDetail_View">
+                                <thead>
+                                    <tr class="net">
+                                        <th style="text-align: center;"></th>
+                                        <th style="text-align: center;">SlNo</th>
+                                        <th style="text-align: center;">Consumer No</th>
+                                        <th style="text-align: center;">Name</th>
+                                        <th style="text-align: center;">Phone Number</th>
+                                        <th style="text-align: center;">Category Type</th>
+                                        <th style="text-align: center;">Status</th>
+                                        <th style="text-align: center;">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="Tbl_Mstr_ConsumerDetail_Search">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- /# card -->
+            </div>
+            <!-- View Content -->
+        </div>
+    </div>
+    <input type="hidden" id="hdnOriginalId" name="hdnOriginalId" />
+    <input type="hidden" id="hdnId" value="0" />
+    <input type="hidden" id="hdnConsumerNo" value="0" />
+    <input type="hidden" id="hdnext1" value="0">
+    <input type="hidden" id="hdnimage1" value="0">
+    <input type="hidden" id="hdnImgPath1" value="@Model.Photo" />
+    <input type="hidden" id="hdnext2" value="0">
+    <input type="hidden" id="hdnimage2" value="0">
+    <input type="hidden" id="hdnImgPath2" value="@Model.Id_Proof_Doc" />
+    <link href="~/css/DataTable.css" rel="stylesheet" />
+    <script src="~/js/DataTable.js"></script>
+    <script>
+    function validateInput(input) {
+        // Remove any non-numeric characters
+        input.value = input.value.replace(/\D/g, '');
+    }
+    var initializeDataTable = function ()
+    {
+        if ($.fn.DataTable.isDataTable('#Tbl_Mstr_ConsumerDetail_View')) {
+            $('#Tbl_Mstr_ConsumerDetail_View').DataTable().destroy();
+        }
+        var dt = $('#Tbl_Mstr_ConsumerDetail_View').DataTable(
+            {
+                "processing": true,
+                "responsive": true,
+                "serverSide": true,
+                "searching": true,
+                "paging": true,
+                "sort": true,
+                "ajax": {
+                    "url": "/Master/GetConsumer",
+                    "type": "GET"  // Assuming a POST request, change it to "GET" if needed
+                },
+                "columns": [
+                    {
+                        "className": "details-control2",
+                        "orderable": false,
+                        "data": null,
+                        "defaultContent": ''
+                    },
+                    {
+                        "className": "text-center",
+                        "data": null,
+                        "orderable": false,
+                        "render": function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    { "data": "Cnsmr_No" },
+                    { "data": "Cnsmr_Name" },
+                    { "data": "Cnsmr_PhNo" },
+                    { "data": "Catgry_Name" },
+                    { "data": "Status_" },
+                    {
+                        "class": "details-control",
+                        "orderable": false,
+                        "data": null, render: function (data, type, row) {
+                            return "<div class='btn-group' style='text-align:center;' ><a  id='" + data.Cnsmr_Id + "' onclick='return_id(this.id);' style='cursor:pointer;' title='Edit' class='btn btn-primary action_btn'><i class='jsgrid-button jsgrid-edit-button ti-pencil-alt btn btn-primary color-white'></i></a>" +
+                                "<a id='" + data.Cnsmr_Id + "' onclick='delete_id(this.id);' style='cursor:pointer;' title='Delete' class='btn btn-danger action_btn'><i class='jsgrid-button jsgrid-delete-button ti-trash btn btn-danger  color-white'></i></a></div>";
+                        }
+                    }
+                ],
+                "order": [[0, 'asc']]
+            });
+    }
+    function toggleTabs(tabId) {
+        if (tabId === 'content1') {
+            debugger;
+            $('#content1').show();
+            $('#txt_consumerName').focus();
+            $('#content2').hide();
+            $('#ddl_CategoryType').prop('disabled', false).val('');
+            $("#ddl_CategoryType").change(function () {
+                updateConsumerNo();
+            });
+            debugger;
+        } else if (tabId === 'content2') {
+            setTimeout(function () {
+                if ($("#btn_submit").text() == "UPDATE") {
+                    ClearConsumer();
+                    $("#btn_submit").text("SUBMIT")
+                }
+                initializeDataTable();
+                $('#content1').hide();
+                $('#content2').show();
+            }, 0);
+        }
+    }
+        function format(d) {
+            var row = "";
+            if (d.Id_Proof_Type || d.Id_Proof_Doc || d.Photo) {
+                row += "<tr style='background-color: #343957;'>";
+                row += "<th style='text-align: center;color: #fff;'>Id_Proof_Type</th>";
+                row += "<th style='text-align: center;color: #fff;'>Id_Proof_Doc</th>";
+                row += "<th style='text-align: center;color: #fff;'>Photo</th>";
+                row += "</tr><tr>";
+                row += "<td style='text-align: center;'>" + (d.Id_Proof_Type || '') + "</td>";
+                row += "<td style='text-align: center;'>" + (d.Id_Proof_Doc ? "<a href='/images/Document/" + d.Id_Proof_Doc + "' target='_blank'>View PDF</a>" : '') + "</td>";
+                row += "<td style='text-align: center;'>" + (d.Photo ? "<img src='/images/Image/" + d.Photo + "' alt='Photo' style='width: 50px;'>" : '') + "</td>";
+                row += "</tr>";
+            } else {
+                row += "<tr><td colspan='3' style='text-align:center'>No Data Found!!</td></tr>";
+            }
+            return "<table class='table table-bordered table-striped' id='tblItem'>" + row + "</table>";
+        }
+    $(document).ready(function () {
+        $.noConflict();
+        @{
+            Tbl_Mstr_Page mm1 = ViewData["PERMISSIONREAD"] as Tbl_Mstr_Page;
+            Tbl_Mstr_Page mw1 = ViewData["PERMISSION"] as Tbl_Mstr_Page;
+            bool canRead1 = mm1?.PERMISSION ?? false;
+            bool canWrite1 = mw1?.PERMISSION ?? false;
+        }
+        $(document).on('click', '.details-control2', function () {
+            var tr = $(this).closest('tr');
+            var row = $('#Tbl_Mstr_ConsumerDetail_View').DataTable().row(tr);
+            if (row.child.isShown()) {
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+                tr.find('.details-control2').css('background-image', 'url("../images/details_open.png")');
+            } else {
+                // Open this row
+                row.child(format(row.data())).show();
+                tr.addClass('shown');
+                tr.find('.details-control2').css('background-image', 'url("../images/details_close.png")');
+            }
+        });
+        // Use JavaScript variables to store the values of canRead and canWrite
+         var canReadAccess = @Html.Raw(Json.Encode(canRead1));
+        var canWriteAccess = @Html.Raw(Json.Encode(canWrite1));
+        // Trigger click event on the "VIEW" tab if read access is enabled
+        if (canReadAccess && !canWriteAccess) {
+        $('#tab2').click();
+        }
+        $('#tab1').click(function () {
+            ClearConsumer();
+            $('#ddl_CategoryType').focus();
+
+        });
+        setTimeout(function () {
+            initializeDataTable();
+        }, 10);
+        var currentId = "";
+        var fileInputId = "";
+        var debounceTimer;
+        $('form').keypress(function (e) {
+            if (e.which === 13) {
+                e.preventDefault(); // Prevent the default Enter key behavior (e.g., submitting a form)
+                if ($('#btn_cancel').is(':focus')) {
+                    e.stopPropagation();
+                    ClearConsumer(); // Call ClearSupplier if the clear button is focused
+                }
+                else {
+                    SupplierIUDOnEnter(); // Call SupplierIUDOnEnter for form submission
+                }
+            }
+        });
+        var currentDate = new Date();
+        var formattedCurrentDate = currentDate.getDate() + '/' + (currentDate.getMonth() + 1) + '/' + currentDate.getFullYear();
+        // Set the default value for the datepicker input
+        $('#dt_ConsumerJoiningDate').val(formattedCurrentDate);
+        //-------------------
+        function handleFileUpload(input, hdnext, hdnimage, imgElement, allowedExtensions) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                var file = input.files[0];
+                var ext = file.name.split('.').pop().toLowerCase();
+                // Check if the selected file has the allowed extension
+                if (allowedExtensions.includes(ext)) {
+                    hdnext.val(ext);
+                    if (ext === 'pdf') {
+                        renderPdfPreview(file, imgElement);
+                    } else {
+                        reader.onload = function (e) {
+                            hdnimage.val(e.target.result);
+                            imgElement.attr('src', e.target.result);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                } else {
+                    $(input).focus();
+                    Swal.fire({
+                        icon: 'info',
+                        text: 'Please select a file with  format ' + allowedExtensions.join(' ')
+                    });
+                    $(input).val(''); // Clear the file input
+                }
+            }
+        }
+        function renderPdfPreview(pdfFile, imgElement, scale = 2) {
+            var fileReader = new FileReader();
+            fileReader.onload = function () {
+                var typedarray = new Uint8Array(this.result);
+                pdfjsLib.getDocument({ data: typedarray }).promise.then(function (pdfDoc) {
+                    pdfDoc.getPage(1).then(function (page) {
+                        var canvas = document.createElement('canvas');
+                        var context = canvas.getContext('2d');
+                        // Increase the canvas dimensions based on the scale
+                        var viewport = page.getViewport({ scale: scale });
+                        canvas.height = viewport.height;
+                        canvas.width = viewport.width;
+                        var renderContext = {
+                            canvasContext: context,
+                            viewport: viewport
+                        };
+                        // Increase the scale for a clearer image
+                        page.render(renderContext).promise.then(function () {
+                            var imageData = canvas.toDataURL('image/png');
+                            hdnimage2.val(imageData);
+                            imgElement.attr('src', imageData);
+                        });
+                    });
+                });
+            };
+            fileReader.readAsArrayBuffer(pdfFile);
+        }
+        // Image Upload
+        $(document).on('click', '#img1', function () {
+            $("#Photo_Upload").click();
+        });
+        $("#Photo_Upload").on('change', function () {
+            handleFileUpload(this, $("#hdnext1"), $("#hdnimage1"), $('#img1'), ['jpg', 'jpeg', 'png']);
+        });
+        // Document Upload
+        $(document).on('click', '#img2', function () {
+            $("#Document_Upload").click();
+        });
+        $("#Document_Upload").on('change', function () {
+            handleFileUpload(this, $("#hdnext2"), $("#hdnimage2"), $('#img2'), ['jpg', 'jpeg', 'png', 'pdf']);
+        });
+        BindSelect2();
+        $('#ddl_CategoryType').focus();
+    });
+     var isInsert = true; // Add this flag to track whether it's an insert or update
+function updateConsumerNo() {
+    // Check if it's an insert operation
+    if (isInsert) {
+        // Get the selected category ID
+        var categoryId = $("#ddl_CategoryType").val();
+        console.log('Selected Category ID:', categoryId);
+        // Make an AJAX request to fetch the Consumer No based on the selected category
+        $.ajax({
+            url: '@Url.Action("AutoCunsumerCode", "Master")',
+            type: 'GET',
+            data: { Catgry_Id: categoryId },
+            success: function (consumerNo) {
+                // Update the Consumer No input field with the fetched value
+                $("#txt_ConsumerNo").val(consumerNo);
+            },
+            error: function () {
+                // Handle error if needed
+                console.error('Error fetching Consumer No');
+            },
+        });
+    }
+}
+    $("#ddl_CategoryType").change(function () {
+
+        updateConsumerNo();
+    });
+    function BindSelect2() {
+        $(".sel1").select2({
+            tags: false,
+            placeholder: "--Select Category--",
+            allowClear: true
+        });
+        $(".sel2").select2({
+            tags: false,
+            placeholder: "--Select Area Name--",
+            allowClear: true
+        });
+    }
+    document.addEventListener('keydown', function (event) {
+        // Check if the pressed key is Escape (key code 27)
+        if (event.key === 'Escape') {
+            ClearConsumer();
+        }
+    });
+    $('.datepicker').keydown(function (event) {
+        switch (event.which) {
+            case 13: // Enter key
+                event.preventDefault();
+                var selectedDate = $(this).datetimepicker('getValue');
+                // Convert the Date object to a string value in the format of dd/mm/yyyy
+                var dateValue = $(this).datetimepicker('format', selectedDate, 'd/m/Y');
+                console.log('Enter key pressed. Selected date:', dateValue);
+                // Assign the string value to the textbox
+                $(this).val(dateValue);
+                $(this).datetimepicker('hide');
+                break;
+            // Add more cases for other keys as needed
+        }
+    });
+    // Custom function to handle form submission on Enter key
+    function SupplierIUDOnEnter() {
+        ConsumerIUD();
+    }
+    // ----------------------------------------------------------------------------------------------------
+    var hdnConsumerNo = $('#hdnConsumerNo')
+    var hdnimage1 = $('#hdnimage1');
+    var hdnext1 = $('#hdnext1');
+    var hdnImgPath1 = $('#hdnImgPath1');
+    var hdnimage2 = $('#hdnimage2');
+    var hdnext2 = $('#hdnext2');
+    var hdnImgPath2 = $('#hdnImgPath2');
+    function ConsumerIUD() {
+        var ButtonData = $("#btn_submit").text();
+        var action = "";
+        if (ButtonData === "SUBMIT") {
+            action = "INSERT";
+        }
+        else {
+            action = "UPDATE";
+        }
+        debugger;
+        $('#ddl_CategoryType').focus();
+        if (ValidateConsumer() == true) {
+            $.ajax({
+                type: 'post',
+                dataType: 'JSON',
+                url: '../Master/MstrConsumerIUD',
+                data: {
+                    'Cnsmr_Id': $('#hdnId').val(),
+                    'Cnsmr_No': $('#txt_ConsumerNo').val(),
+                    'Cnsmr_Name': $('#txt_consumerName').val(), 'Cnsmr_PhNo': $('#txt_phoneNo').val(),
+                    'Cnsmr_Email': $('#txt_Email').val(), 'Gender': $('#dll_Gender').val(),
+                    'Photo': $('#Photo_Upload').val(), 'base64Data1': hdnimage1.val(), 'ext1': hdnext1.val(),
+                    'hdnImgPath1': hdnImgPath1.val(),
+                    'Catgry_Id': $('#ddl_CategoryType').val(),
+                    'Area_Id': $('#ddl_Area').val(),
+                    'Cnsmr_Date': $('#dt_ConsumerJoiningDate').val(),
+                    'Id_Proof_Type': $('#ddl_Idprooftype').val(), 'Id_Proof_No': $('#txt_IdProofNo').val(),
+                    'Id_Proof_Doc': $('#Document_Upload').val(), 'Status_': $('#ddl_Status').val(),
+                    'base64Data2': hdnimage2.val(),
+                    'ext2': hdnext2.val(),
+                    'hdnImgPath2': hdnImgPath2.val(),
+                    'Addrs': $('#txt_address').val(),
+                    'Action': action
+                },
+                success: function (res) {
+                    debugger;
+                    if (res === 'Consumer Id Proof Number, Email, and Phone Number Already Exist. Duplicate Not Allowed') {
+                        $('#txt_phoneNo').focus();
+                        $('#txt_Email').focus();
+                        $('#txt_IdProofNo').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'Consumer Id Proof Number,E_mail And Phone Number  Already Exist.Duplicate Not Allowed'
+                        })
+                        return false;
+                    }
+                    else if (res === 'Consumer Id Proof Number And Phone Number Already Exist. Duplicate Not Allowed') {
+                        $('#txt_phoneNo').focus();
+                        $('#txt_IdProofNo').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'Consumer Id Proof Number And Phone Number  Already Exist.Duplicate Not Allowed'
+                        })
+                        return false;
+                    }
+                    else if (res === 'Consumer Id Proof Number And E_mail Already Exist. Duplicate Not Allowed') {
+                        $('#txt_Email').focus();
+                        $('#txt_IdProofNo').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'Consumer Id Proof Number And Email  Already Exist.Duplicate Not Allowed'
+                        })
+                        return false;
+                    }
+                    if (res === 'Consumer Id Proof Number Already Exist. Duplicate Not Allowed') {
+                        $('#txt_IdProofNo').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'Consumer Id Proof Number Already Exist.Duplicate Not Allowed'
+                        })
+                        return false;
+                    }
+                    else if (res == 'Consumer E_mail And Phone Number Already Exist. Duplicate Not Allowed') {
+                        $('#txt_phoneNo').focus();
+                        $('#txt_Email').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'Consumer Email And Phone Number Already Exist.Duplicate Not Allowed'
+                        })
+                        return false;
+                    }
+                    else if (res === 'Consumer Phone Number Already Exist. Duplicate Not Allowed') {
+                        $('#txt_phoneNo').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'Consumer Phone Number  Already Exist.Duplicate Not Allowed'
+                        })
+                        return false;
+                    }
+                    else if (res === 'Consumer Email Already Exist. Duplicate Not Allowed') {
+                        $('#txt_Email').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'Consumer Email Already Exist.Duplicate Not Allowed'
+                        })
+                        return false;
+                    }
+                    else if (res === 'Consumer Master Created Successfully') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: res,
+                            didOpen: () => {
+                                // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                setTimeout(() => {
+                                    const okButton = document.querySelector('.swal2-confirm');
+                                    if (okButton) {
+                                        okButton.focus();
+                                    }
+                                }, 0);
+                            },
+                        })
+                        ClearConsumer();
+                    }
+                    else if (res === 'Consumer Master Modified Successfully') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated',
+                            text: res,
+                            didOpen: () => {
+                                // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                setTimeout(() => {
+                                    const okButton = document.querySelector('.swal2-confirm');
+                                    if (okButton) {
+                                        okButton.focus();
+                                    }
+                                }, 0);
+                            },
+                        })
+                        ClearConsumer();
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops',
+                            text: res
+                        })
+                        ClearConsumer();
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+        }
+    }
+    function ValidateConsumer() {
+        if ($('#ddl_CategoryType').val() === "") {
+            $('#ddl_CategoryType').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Category Type cannot be  blank!!'
+            });
+            return false;
+        }
+        if ($('#txt_consumerName').val() === "") {
+            $('#txt_consumerName').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Consumer Name cannot be  blank!!'
+            });
+            return false;
+        }
+        if ($('#txt_phoneNo')) {
+            if ($('#txt_phoneNo').val() === "") {
+                $('#txt_phoneNo').focus();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'PhoneNo cannot be bLank!!'
+                });
+                return false;
+            }
+            var regex = /^[0-9]+$/;
+            if (!regex.test($('#txt_phoneNo').val())) {
+                $('#txt_phoneNo').focus();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'PhoneNo cannot contain characters!!'
+                });
+                return false;
+            }
+            if ($('#txt_phoneNo').val().length > 10) {
+                $('#txt_phoneNo').focus();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'PhoneNo cannot exceed ten digit!!'
+                });
+                return false;
+            }
+            if ($('#txt_phoneNo').val().length < 10) {
+                $('#txt_phoneNo').focus();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'PhoneNo cannot less than ten digit!!'
+                });
+                return false;
+            }
+        }
+        if ($('#txt_Email')) {
+            if ($('#txt_Email').val() === "") {
+                $('#txt_Email').focus();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'Email cannot be  blank!!'
+                });
+                return false;
+            }
+            var emailPattern = /^[^\s@@]+@@[^\s@@]+\.[a-zA-Z]{2,}$/;
+            if (!emailPattern.test($('#txt_Email').val())) {
+                $('#txt_Email').focus();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'please enter valid email address!!'
+                });
+                return false;
+            }
+        }
+        if ($('#dll_Gender').val() === "") {
+            $('#dll_Gender').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Gender cannot be  blank!!'
+            });
+            return false;
+        }
+        if ($('#ddl_Area ').val() === "") {
+            $('#ddl_Area ').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Area cannot be blank!!'
+            });
+            return false;
+        }
+        if ($('#txt_address').val() === "") {
+            $('#txt_address').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Address cannot be blank!!'
+            });
+            return false;
+        }
+        if ($('#ddl_Idprooftype').val() === "") {
+            $('#ddl_Idprooftype').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Id proof Type cannot be  blank!!'
+            });
+            return false;
+        }
+        if ($('#txt_IdProofNo').val() === "") {
+            $('#txt_IdProofNo').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Id proof No cannot be blank!!'
+            });
+            return false;
+        }
+        var currentSrc2 = "";
+        currentSrc2 = document.getElementById("img2").src;
+        var dummyAnchor2 = "";
+        var dummyAnchor2 = document.createElement('a');
+        dummyAnchor2.href = currentSrc2;
+        // Remove the protocol, hostname, and port from the URL
+        var relativePath2 = "";
+        relativePath2 = dummyAnchor2.pathname + dummyAnchor2.search + dummyAnchor2.hash;
+        // Check if the current src is equal to the desired value
+        var desiredSrc2 = "/images/UploadDocument.png";
+        if (desiredSrc2 === relativePath2) {
+            $("#img2").focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Id Proof Document cannot be  blank!!'
+            });
+            return false;
+        }
+        var currentSrc1 = "";
+        currentSrc1 = document.getElementById("img1").src;
+        var dummyAnchor1 = "";
+        var dummyAnchor1 = document.createElement('a');
+        dummyAnchor1.href = currentSrc1;
+        // Remove the protocol, hostname, and port from the URL
+        var relativePath1 = "";
+        relativePath1 = dummyAnchor1.pathname + dummyAnchor1.search + dummyAnchor1.hash;
+        // Check if the current src is equal to the desired value
+        var desiredSrc1 = "/images/pUpload1.png";
+        if (relativePath1 === desiredSrc1) {
+            $("#img1").focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Photo cannot be  blank!!'
+            });
+            return false;
+        }
+        if ($('#dt_ConsumerJoiningDate').val() === "") {
+            //$('#dt_ConsumerJoiningDate').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Consumer Joining Date cannot be  blank!!',
+                didClose: () => {
+                    // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                    setTimeout(() => {
+                        const okButton = document.querySelector('.swal2-confirm');
+                        if (okButton) {
+                            okButton.focus();
+                        }
+                        $('#dt_ConsumerJoiningDate').focus();
+                    }, 0);
+                },
+            });
+            return false;
+        }
+        if ($('#ddl_Status').val() === "") {
+            $('#ddl_Status').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'status cannot be  blank!!'
+            });
+            return false;
+        }
+        return true;
+    }
+    //ClearUser
+    function ClearConsumer() {
+        $('#txt_ConsumerNo').val('');
+        $('#ddl_CategoryType').prop('disabled', false).val('');
+        $('#txt_consumerName').val('');
+        $('#txt_phoneNo').val('');
+        $('#txt_Email').val('');
+        $('#dll_Gender').val('');
+        $('#FilePost1').val('');
+        $('#ddl_CategoryType').val('').trigger('change');;
+        $('#ddl_Area').val('').trigger('change');
+        $('#ddl_Idprooftype').val('');
+        $('#txt_IdProofNo').val('');
+        $('#FilePost2').val('');
+        $('#ddl_Status').val('Active');
+        $('#txt_address').val('');
+        $('#Photo_Upload').val('');
+        $('#Document_Upload').val('');
+        $('#hdnimage1').val('');
+        $('#hdnext1').val('');
+        $('#hdnImgPath1').val('');
+        $('#hdnimage2').val('');
+        $('#hdnext2').val('');
+        $('#hdnImgPath2').val('');
+        var imgSrc1 = "/images/pUpload1.png";
+        var imgSrc2 = "/images/UploadDocument.png"
+        $('#img1').attr('src', imgSrc1);
+        $('#img2').attr('src', imgSrc2);
+        $('#btn_submit').text('SUBMIT');
+        $('#ddl_CategoryType').focus();
+        $("#btn_submit").text("SUBMIT");
+        isInsert = true;
+    }
+    //---------------------------------------CONSUMER VIEW-----------------------------------
+    //-----------------------------------------------------
+    function return_id(par) {
+        var canEdit = @Html.Raw(Json.Encode(canWrite1));
+        if (!canEdit) {
+        Swal.fire({
+        icon: 'error',
+        title: 'Oops',
+        text: 'YOU HAVE NO PERMISSION FOR EDIT!'
+        });
+        return;
+        }
+        $('#tab1').addClass('active');
+        $('#tab2').removeClass('active').addClass('closed');
+        $('#content1').show();
+        $('#content2').hide();
+        isInsert = false;
+        $.ajax(
+            {
+                url: '/Master/ConsumerEdit?Id=' + par, // Replace with your controller and action
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data);
+                    $('#hdnId').val(par);
+                    $('#ddl_CategoryType').focus();
+                    $('#ddl_CategoryType').val(data.Catgry_Id).prop('disabled', true).trigger('change');
+                    $('#txt_ConsumerNo').val(data.Cnsmr_No);
+                    $('#txt_consumerName').val(data.Cnsmr_Name);
+                    $('#txt_phoneNo').val(data.Cnsmr_PhNo);
+                    $('#txt_Email').val(data.Cnsmr_Email);
+                    $('#dll_Gender').val(data.Gender);
+                    $('#ddl_Area').val(data.Area_Id).trigger('change');
+                    $('#ddl_Idprooftype').val(data.Id_Proof_Type);
+                    $('#txt_IdProofNo').val(data.Id_Proof_No);
+                    $('#ddl_Status').val(data.Status_);
+                    $('#txt_address').val(data.Addrs);
+                    var img1Src = "/images/Image/" + data.Photo;
+                    var img2Src = "/images/Document/" + data.Id_Proof_Doc;
+                    $('#img1').attr('src', img1Src)
+                    $('#img2').attr('src', img2Src);
+                    hdnimage2.val("0");
+                    hdnimage1.val("0");
+                    hdnImgPath1.val(data.Photo);
+                    hdnImgPath2.val(data.Id_Proof_Doc);
+                    $("#btn_submit").text('UPDATE');
+                },
+                error: function () {
+                    console.log('Error loading data.');
+                },
+            });
+        }
+    //-----------end here---------------
+    //-----------delete data--------------
+    function delete_id(par) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
+                var consumer = {
+                    'Cnsmr_Id': par,
+                    'Action': 'DELETE'
+                };
+                $.ajax({
+                    url: '/Master/MstrConsumerIUD',
+                    data: JSON.stringify(consumer),
+                    type: 'post',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    success: function (res) {
+                        if (res === "Consumer Master Deleted Successfully") {
+                            Swal.fire({
+                                icon: 'success',
+                                title: "Deleted",
+                                text: res
+                            });
+                            setTimeout(function () {
+                                initializeDataTable();
+                                $('#content1').hide();
+                                $('#content2').show();
+                            }, 0);
+                        }
+                        else if (res === "YOU HAVE NO PERMISSION FOR DELETE!") {
+                            Swal.fire({
+                                icon: 'error',
+                                title: "Opss",
+                                text: res
+                            });
+                        }
+                        else {
+                            alert(res);
+                        }
+                    },
+                    error: function (err) {
+                        alert(err);
+                    }
+                });
+            }
+        });
+    }
+</script>

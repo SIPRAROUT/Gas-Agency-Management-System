@@ -1,0 +1,460 @@
+﻿@{
+    ViewBag.Title = "Category";
+}
+@using GasAgencyManagementProject.Models.Master
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>User</title>
+    <link href="~/css/style.css" type="text/css" rel="stylesheet" />
+</head>
+<body>
+    <div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card bg-light">
+                    <div>
+                        <h4 class="mb-0">Category Master</h4>
+                    </div>
+                    <div class="tabs">
+                        @{
+                            Tbl_Mstr_Page mm = (Tbl_Mstr_Page)ViewData["PERMISSIONREAD"];
+                            Tbl_Mstr_Page mw = (Tbl_Mstr_Page)ViewData["PERMISSION"];
+
+                            bool canRead = mm.PERMISSION;
+                            bool canWrite = mw.PERMISSION;
+                        }
+                        @if (canRead && canWrite)
+                        {
+                            <ul class="nav nav-tabs" id="myTabs">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="tab1" data-toggle="tab" href="#content1" onclick="toggleTabs('content1')">ADD</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link " id="tab2" data-toggle="tab" href="#content2" onclick="toggleTabs('content2')">VIEW</a>
+                                </li>
+                            </ul>
+                        }
+                        else if (canRead)
+                        {
+                            <ul class="nav nav-tabs" id="myTabs">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="tab2" data-toggle="tab" href="#content2" onclick="toggleTabs('content2')">VIEW</a>
+                                </li>
+                            </ul>
+                        }
+                        else if (canWrite)
+                        {
+                            <ul class="nav nav-tabs" id="myTabs">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="tab1" data-toggle="tab" href="#content1" onclick="toggleTabs('content1')">ADD</a>
+                                </li>
+                            </ul>
+                        }
+                        else
+                        {
+                            <p>You don't have permission to access this page.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+            @{
+                Tbl_Mstr_Page m = (Tbl_Mstr_Page)ViewData["PERMISSION"];
+                if (m.PERMISSION == true)
+                {
+                    <div class="col-lg-12" id="content1">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="basic-form">
+                                    <form>
+                                        <div class="row">
+                                            <div class="form-group col-md-3">
+                                                <label> Category Name</label>
+                                                <input type="text" class="form-control" id="txt_CategoryName" tabindex="6" placeholder="Category Name">
+                                            </div>
+                                            <div class="form-group col-md-3">
+                                                <label>Category Status</label>
+                                                <select class="form-control" id="ddl_CategoryStatus" tabindex="7">
+                                                    <option value=""  hidden>--Select Category Status--</option>
+                                                    <option value="Active" selected>Active</option>
+                                                    <option value="In Active">In Active</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row  ">
+                                            <div class="col-md-3 posit">
+                                                <button type="button" class="btn btn-primary" onclick="CategoryIUD()" id="btn_submit" tabindex="8">SUBMIT</button>
+                                                <button type="button" class="btn btn-danger" id="btn_cancel" tabindex="9" onclick="ClearCategory()">CLEAR</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            <!-- Your "View" content -->
+            <div class="col-lg-12" id="content2" style="display: none;">
+                <!-- View Content -->
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-title">
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-striped table-bordered" id="Tbl_Mstr_Category_View">
+                                    <thead>
+                                        <tr class="headergrid">
+                                            <th style="text-align: center; width: 76px">Slno</th>
+                                            <th style="text-align: center;">Category Name</th>
+                                            <th style="text-align: center;">Category Status</th>
+                                            <th style="text-align: center;">Action</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /# card -->
+                </div>
+                <!-- View Content -->
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="hdnId" value=""   />
+</body>
+</html>
+<link href="~/css/Datatable.css" rel="stylesheet" />
+<script src="~/js/DataTable.js"></script>
+<script>
+    $(document).ready(function () {
+        $.noConflict();
+        @{
+                 Tbl_Mstr_Page mm1 = ViewData["PERMISSIONREAD"] as Tbl_Mstr_Page;
+                 Tbl_Mstr_Page mw1 = ViewData["PERMISSION"] as Tbl_Mstr_Page;
+
+                bool canRead1 = mm1?.PERMISSION ?? false;
+                 bool canWrite1 = mw1?.PERMISSION ?? false;
+        }
+        // Use JavaScript variables to store the values of canRead and canWrite
+        var canReadAccess = @Html.Raw(Json.Encode(canRead1));
+        var canWriteAccess = @Html.Raw(Json.Encode(canWrite1));
+        // Trigger click event on the "VIEW" tab if read access is enabled
+        if (canReadAccess && !canWriteAccess) {
+                $('#tab2').click();
+        }
+        $('#tab1').click(function () {
+            ClearCategory();
+        });
+        $('#txt_CategoryName').focus();
+        $('form').keypress(function (e) {
+            if (e.which === 13) {
+                e.preventDefault(); // Prevent the default Enter key behavior (e.g., submitting a form)
+                if ($('#btn_cancel').is(':focus')) {
+                    e.stopPropagation();
+                    ClearCategory(); // Call ClearSupplier if the clear button is focused
+                }
+                else {
+                    SupplierIUDOnEnter(); // Call SupplierIUDOnEnter for form submission
+                }
+            }
+        });
+    });
+    // Custom function to handle form submission on Enter key
+    function SupplierIUDOnEnter() {
+        CategoryIUD();
+    }
+    document.addEventListener('keydown', function (event) {
+        // Check if the pressed key is Escape (key code 27)
+        if (event.key === 'Escape') {
+            ClearCategory();
+        }
+    });
+    //UserValidation ALertMsg
+    function CategoryIUD() {
+        var ButtonData = $('#btn_submit');
+        var action
+        if (ButtonData.text() === "SUBMIT") {
+            debugger;
+            action = "INSERT"
+        }
+        else {
+            debugger;
+            action = "UPDATE"
+        }
+        $('#txt_CategoryName').focus();
+        if (ValidateCategory() == true) {
+            $.ajax({
+                type: 'post',
+                dataType: 'JSON',
+                url: '../Master/MstrCategoryIUD',
+                data: {
+                    'Catgry_Id': $('#hdnId').val(),
+                    'Catgry_Name': $('#txt_CategoryName').val(),
+                    'Catgry_Status': $('#ddl_CategoryStatus').val(),
+                    'Action': action
+                },
+                success: function (res) {
+                    debugger;
+                    if (res == 'Category Name Already Exist.Duplicate Not Allowed') {
+
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: res
+                        })
+                        txt_CategoryName.focus();
+                        return false;
+                    }
+                    else if (res == 'Category Master Created Successfully') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: res,
+                            didOpen: () => {
+                                // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                setTimeout(() => {
+                                    const okButton = document.querySelector('.swal2-confirm');
+                                    if (okButton) {
+                                        okButton.focus();
+                                    }
+                                }, 0);
+                            },
+                        })
+                        ClearCategory();
+                    }
+                    else if (res = 'Category Master Modified Successfully') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated',
+                            text: res,
+                            didOpen: () => {
+                                // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                setTimeout(() => {
+                                    const okButton = document.querySelector('.swal2-confirm');
+                                    if (okButton) {
+                                        okButton.focus();
+                                    }
+                                }, 0);
+                            },
+                        })
+                        ClearCategory();
+                        $('#btn_submit').text('SUBMIT');
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops',
+                            text: res
+                        });
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+        }
+    }
+    //UserValidation PopupMsg
+    function ValidateCategory() {
+        if ($('#txt_CategoryName').val() === "") {
+            $('#txt_CategoryName').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Category Name cannot be  blank!!'
+            });
+            return false;
+        }
+        if ($('#ddl_CategoryStatus').val() === "") {
+            $('#ddl_CategoryStatus').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Category Status cannot be  blank!!'
+            }
+            );
+            return false;
+        }
+        return true;
+    }
+    //ClearUser
+    function ClearCategory() {
+        $('#txt_CategoryName').val('');
+        $('#ddl_CategoryStatus').val('Active');
+        //$('#btn_submit').innerText = 'Submit';
+        $('#txt_CategoryName').focus();
+        $("#btn_submit").text("SUBMIT")
+    }
+    setTimeout(function () {
+        initializeDataTable();
+    }, 0);
+    var initializeDataTable = function () {
+        if ($.fn.DataTable.isDataTable('#Tbl_Mstr_Category_View')) {
+            $('#Tbl_Mstr_Category_View').DataTable().destroy();
+        }
+        var dt = $('#Tbl_Mstr_Category_View').DataTable(
+            {
+                "processing": true,
+                "responsive": true,
+                "serverSide": true,
+                "searching": true,
+                "paging": true,
+                "sort": true,
+                "lengthMenu": [5, 10, 25, 50, 100],
+                /*  "ajax": "/Master/GetConsumer",*/
+                "ajax": {
+                    "url": "/Master/GetCategory",
+                    "type": "GET"  // Assuming a POST request, change it to "GET" if needed
+                },
+                "columns": [
+                    {
+                        "className": "text-center",
+                        "data": null,
+                        "orderable": false,
+                        "render": function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    { "data": "Catgry_Name" },
+                    { "data": "Catgry_Status" },
+                    {
+                        "class": "details-control",
+                        "orderable": false,
+                        "data": null, render: function (data, type, row) {
+                            return "<div class='btn-group' style='text-align:center;' ><a id='" + data.Catgry_Id + "' onclick='return_id(this.id);' style='cursor:pointer;' title='Edit' class='btn btn-primary action_btn'><i class='jsgrid-button jsgrid-edit-button ti-pencil-alt btn btn-primary color-white'></i></a>" +
+                                "<a id='" + data.Catgry_Id + "' onclick='delete_id(this.id);' style='cursor:pointer;' title='Delete' class='btn btn-danger action_btn'><i class='jsgrid-button jsgrid-delete-button ti-trash btn btn-danger  color-white'></i></a></div>";
+                        }
+                    }
+                ],
+                "order": [[0, 'asc']]
+            });
+    }
+    function toggleTabs(tabId) {
+        if (tabId === 'content1') {
+            $('#content1').show();
+            $('#txt_CategoryName').focus();
+            $('#content2').hide();
+        }
+        else if (tabId === 'content2') {
+            setTimeout(function () {
+                if ($("#btn_submit").text() == "UPDATE") {
+                    ClearCategory();
+                    $("#btn_submit").text("SUBMIT");
+                }
+                initializeDataTable();
+                $('#content1').hide();
+                $('#content2').show();
+            }, 0);
+        }
+    }
+    //----------edit data---------------
+    function return_id(par) {
+           var canEdit = @Html.Raw(Json.Encode(canWrite1));
+   if (!canEdit) {
+   Swal.fire({
+           icon: 'error',
+           title: 'Oops',
+           text: 'YOU HAVE NO PERMISSION FOR EDIT!'
+           });
+           return;
+           }
+        $('#tab1').addClass('active');
+        $('#tab2').removeClass('active').addClass('closed');
+        $('#content1').show();
+        $('#content2').hide();
+        debugger;
+        $.ajax(
+            {
+                url: '/Master/EditCategory?Id=' + par, // Replace with your controller and action
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+
+                    $('#hdnId').val(par),
+                        $('#txt_CategoryName').focus(),
+                        $('#txt_CategoryName').val(data.Catgry_Name)
+                    $('#ddl_CategoryStatus').val(data.Catgry_Status)
+                    $('#btn_submit').text('UPDATE');
+                },
+                error: function () {
+                    console.log('Error loading data.');
+                }
+            });
+
+    }
+    //-----------end here---------------
+    //-----------delete data--------------
+    function delete_id(par) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
+                var equip = {
+                    'Catgry_Id': par,
+                    'Action': 'DELETE'
+                };
+                $.ajax({
+                    url: '/Master/MstrCategoryIUD',
+                    data: JSON.stringify(equip),
+                    type: 'post',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    success: function (res) {
+                        if (res === "Category Master Deleted Successfully") {
+                            Swal.fire({
+                                icon: 'success',
+                                title: "Deleted",
+                                text: res
+                            });
+                            setTimeout(function () {
+                                debugger;
+                                /*  window.location.href = "/Master/Consumer";*/
+                                initializeDataTable();
+                                debugger;
+                                $('#content1').hide();
+                                $('#content2').show();
+                            }, 100);
+                        }
+                        else if (res == 'Category is referenced in another table. Cannot delete.') {
+                            Swal.fire({
+                                icon: 'error',
+                                title: "Oops",
+                                text: res,
+                                didOpen: () => {
+                                    // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                    setTimeout(() => {
+                                        const okButton = document.querySelector('.swal2-confirm');
+                                        if (okButton) {
+                                            okButton.focus();
+                                        }
+                                    }, 0);
+                                },
+                            })
+                        }
+                        else if (res === "YOU HAVE NO PERMISSION FOR DELETE!") {
+                            Swal.fire({
+                                icon: 'error',
+                                title: "Opss",
+                                text: res
+                            });
+                        }
+                        else {
+                            alert(res);
+                        }
+                    },
+                    error: function (err) {
+                        alert(err);
+                    }
+                });
+            }
+        });
+    }
+</script>

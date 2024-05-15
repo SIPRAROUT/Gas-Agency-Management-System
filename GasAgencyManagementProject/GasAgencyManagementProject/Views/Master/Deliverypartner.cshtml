@@ -1,0 +1,647 @@
+﻿@{
+    ViewBag.Title = "User";
+}
+<link href="~/css/style.css" rel="stylesheet" />
+@using GasAgencyManagementProject.Models.Master
+<script src="~/Scripts/jquery.datetimepicker.js"></script>
+<script src="~/Scripts/date.js"></script>
+<head>
+    <link href="~/css/Select2.css" rel="stylesheet" />
+    <script src="~/js/select2.js"></script>
+    <style>
+        .btn-primary:focus {
+            box-shadow: 0 0 0 0.25rem rgba(38, 143, 255, 0.5);
+        }
+        .btn-danger:focus {
+            box-shadow: 0 0 0 0.25rem rgba(220,  53,  69,  0.5);
+        }
+    </style>
+</head>
+<div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card bg-light">
+                <div>
+                    <h4 class="mb-0">Delivery Partner Master</h4>
+                </div>
+                <div class="tabs">
+                    @{
+                        Tbl_Mstr_Page mm = (Tbl_Mstr_Page)ViewData["PERMISSIONREAD"];
+                        Tbl_Mstr_Page mw = (Tbl_Mstr_Page)ViewData["PERMISSION"];
+                        bool canRead = mm.PERMISSION;
+                        bool canWrite = mw.PERMISSION;
+                    }
+                    @if (canRead && canWrite)
+                    {
+                        <ul class="nav nav-tabs" id="myTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tab1" data-toggle="tab" href="#content1" onclick="toggleTabs('content1')">ADD</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link " id="tab2" data-toggle="tab" href="#content2" onclick="toggleTabs('content2')">VIEW</a>
+                            </li>
+                        </ul>
+                    }
+                    else if (canRead)
+                    {
+                        <ul class="nav nav-tabs" id="myTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tab2" data-toggle="tab" href="#content2" onclick="toggleTabs('content2')">VIEW</a>
+                            </li>
+                        </ul>
+                    }
+                    else if (canWrite)
+                    {
+                        <ul class="nav nav-tabs" id="myTabs">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="tab1" data-toggle="tab" href="#content1" onclick="toggleTabs('content1')">ADD</a>
+                            </li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>You don't have permission to access this page.</p>
+                    }
+                </div>
+            </div>
+        </div>
+        @{
+            Tbl_Mstr_Page m = (Tbl_Mstr_Page)ViewData["PERMISSION"];
+            if (m.PERMISSION == true)
+            {
+                <div class="col-lg-12" id="content1">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="basic-form">
+                                <form>
+                                    <div class="row">
+                                        <div class="form-group col-md-3">
+                                            <label>Delivery Partner Name</label>
+                                            <input type="text" class="form-control rounded" placeholder="Delivery Partner Name" id="txt_DpName" tabindex="6">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Phone No</label>
+                                            <input type="text" maxlength="10" class="form-control rounded" placeholder="Phone No" id="txt_DpPhNo" tabindex="7" oninput="validateInput(this)">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Email</label>
+                                            <input type="email" class="form-control rounded" placeholder="Email" id="txt_DpEmail" tabindex="8">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Gender</label>
+                                            <select class="form-control rounded" id="ddl_DpGender" tabindex="9">
+                                                <option value="" selected hidden>--Select Gender--</option>
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                                <option value="Others">Others</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="form-group  col-md-3">
+                                            <label>Area</label>
+                                            <select class="form-control  sel2" id="ddl_Area" tabindex="10">
+                                                <option value="" selected hidden>--Select Area--</option>
+                                                @{
+                                                    List<Tbl_Mstr_Area> lstArea = (List<Tbl_Mstr_Area>)ViewData["Area"];
+                                                    if (lstArea != null)
+                                                    {
+                                                        foreach (var item in lstArea)
+                                                        {
+                                                            <option value="@item.Area_Id">@item.Area_Info</option>
+
+                                                        }
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Joining Date</label>
+                                            <input type="text" class="datepicker form-control rounded" id="Dt_JoinDate" placeholder="Joining Date" tabindex="11">
+                                        </div>
+                                        <div class="form-group col-md-3">
+                                            <label>Address</label>
+                                            <textarea class="form-control rounded" rows="2" placeholder="Address" id="txt_Addrs" tabindex="12"></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="row ">
+                                        <div class="col-md-3 posit">
+                                            <button type="button" class="btn btn-primary" onclick="DeliveryPartnerIUD()" id="btn_submit" tabindex="13">SUBMIT</button>
+                                            <button type="button" class="btn btn-danger" id="btn_cancel" onclick="ClearDeliveryPartner()" tabindex="14">CLEAR</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        <!-- Your "View" content -->
+        <div class="col-lg-12" id="content2" style="display: none;">
+            <!-- View Content -->
+            <div class="col-lg-12">
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <div class="card">
+                            <div class="list-container">
+                                <table class="table table-bordered  table-hover table-bordered table-striped" id="Tbl_Mstr_DeliveryPartnerDetail_View">
+                                    <thead class="head">
+                                        <tr>
+                                            <th>SlNo</th>
+                                            <th>Name</th>
+                                            <th>Phone No</th>
+                                            <th>Email</th>
+                                            <th>AREA</th>
+                                            <th>Address</th>
+                                            <th>Joining Date</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="Tbl_Mstr_DeliveryPartner_Search">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /# card -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="hdnId" value="0" />
+<link href="~/css/DataTable.css" rel="stylesheet" />
+<script src="~/js/DataTable.js"></script>
+<script>
+    function validateInput(input) {
+        // Remove any non-numeric characters
+        input.value = input.value.replace(/\D/g, '');
+    }
+    $(document).ready(function () {
+       $.noConflict();
+          @{
+             Tbl_Mstr_Page mm1 = ViewData["PERMISSIONREAD"] as Tbl_Mstr_Page;
+             Tbl_Mstr_Page mw1 = ViewData["PERMISSION"] as Tbl_Mstr_Page;
+
+             bool canRead1 = mm1?.PERMISSION ?? false;
+             bool canWrite1 = mw1?.PERMISSION ?? false;
+          }
+        // Use JavaScript variables to store the values of canRead and canWrite
+         var canReadAccess = @Html.Raw(Json.Encode(canRead1));
+         var canWriteAccess = @Html.Raw(Json.Encode(canWrite1));
+        // Trigger click event on the "VIEW" tab if read access is enabled
+         if (canReadAccess && !canWriteAccess) {
+             $('#tab2').click();
+         }
+        $('#tab1').click(function () {
+            ClearDeliveryPartner();
+        });
+        debugger;
+        $('#txt_DpName').focus();
+        initializeDataTable();
+        // Add keypress event listener to the form
+        $('form').keypress(function (e) {
+            if (e.which === 13) {
+                e.preventDefault(); // Prevent the default Enter key behavior (e.g., submitting a form)
+                if ($('#btn_cancel').is(':focus')) {
+                    e.stopPropagation();
+                    ClearDeliveryPartner(); // Call ClearSupplier if the clear button is focused
+                }
+                else {
+                    DeliveryPartnerIUDOnEnter();
+                }
+            }
+        });
+        BindSelect2();
+    });
+    var currentDate = new Date();
+    var formattedCurrentDate = currentDate.getDate()  + '/' + (currentDate.getMonth() + 1) + '/' + currentDate.getFullYear();
+    // Set the default value for the datepicker input
+    $('#Dt_JoinDate').val(formattedCurrentDate);
+    $('.datepicker').keydown(function (event) {
+        switch (event.which) {
+            case 13: // Enter key
+                event.preventDefault();
+                var selectedDate = $(this).datetimepicker('getValue');
+                // Convert the Date object to a string value in the format of dd/mm/yyyy
+                var dateValue = $(this).datetimepicker('format', selectedDate, 'd/m/Y');
+                console.log('Enter key pressed. Selected date:', dateValue);
+                // Assign the string value to the textbox
+                $(this).val(dateValue);
+                $(this).datetimepicker('hide');
+                break;
+        }
+    });
+    function BindSelect2() {
+
+        $(".sel2").select2({
+            tags: false,
+            placeholder: "--Select Area--",
+            allowClear: true
+        });
+    }
+    // Custom function to handle form submission on Enter key
+    function DeliveryPartnerIUDOnEnter() {
+        DeliveryPartnerIUD();
+    }
+    document.addEventListener('keydown', function (event) {
+        // Check if the pressed key is Escape (key code 27)
+        if (event.key === 'Escape') {
+            ClearDeliveryPartner();
+        }
+    });
+    var initializeDataTable = function () {
+        if ($.fn.DataTable.isDataTable('#Tbl_Mstr_DeliveryPartnerDetail_View')) {
+            $('#Tbl_Mstr_DeliveryPartnerDetail_View').DataTable().destroy();
+        }
+        var dt = $('#Tbl_Mstr_DeliveryPartnerDetail_View').DataTable(
+            {
+                "processing": true,
+                "responsive": true,
+                "serverSide": true,
+                "searching": true,
+                "paging": true,
+                "sort": true,
+                "ajax": {
+                    "url": "/Master/GetDeliveryPartner",
+                    "type": "GET"  // Assuming a POST request, change it to "GET" if needed
+                },
+                "columns": [
+                    {
+                        "className": "text-center",
+                        "data": null,
+                        "orderable": false,
+                        "render": function (data, type, row, meta) {
+                            return meta.row + meta.settings._iDisplayStart + 1;
+                        }
+                    },
+                    {
+                        "data": "Dp_Name"
+                    },
+                    { "data": "Dp_PhNo" },
+                    { "data": "Dp_Email" },
+                    { "data": "Area_Info" },
+                    { "data": "Addrs" },
+                    {
+                        "data": "Join_Date",
+                        "render": function (data, type, row) {
+                            return data
+                        }
+                    },
+                    {
+                        "class": "details-control",
+                        "orderable": false,
+                        "data": null, render: function (data, type, row) {
+                            return "<div class='btn-group' style='text-align:center;' ><a  id='" + data.Dp_Id + "' onclick='return_id(this.id);' style='cursor:pointer;' title='Edit' class='btn btn-primary action_btn'><i class='jsgrid-button jsgrid-edit-button ti-pencil-alt btn btn-primary color-white'></i></a>" +
+                                "<a id='" + data.Dp_Id + "' onclick='delete_id(this.id);' style='cursor:pointer;' title='Delete' class='btn btn-danger action_btn'><i class='jsgrid-button jsgrid-delete-button ti-trash btn btn-danger  color-white'></i></a></div>";
+                        }
+                    }
+                ],
+                "order": [[0, 'asc']]
+            });
+    }
+    function toggleTabs(tabId) {
+        if (tabId === 'content1') {
+            $('#content1').show();
+            $('#txt_DpName').focus();
+            $('#content2').hide();
+        } else if (tabId === 'content2') {
+            setTimeout(function () {
+                if ($("#btn_submit").text() == "UPDATE") {
+                    ClearDeliveryPartner();
+                    $("#btn_submit").text("SUBMIT")
+                }
+                initializeDataTable();
+                $('#content1').hide();
+                $('#content2').show();
+            }, 10);
+        }
+    }
+    //UserValidation ALertMsg
+    function DeliveryPartnerIUD() {
+        debugger;
+        var ButtonData = $("#btn_submit").text();
+        var action = "";
+        if (ButtonData === "SUBMIT") {
+            action = "INSERT";
+        }
+        else {
+            action = "UPDATE";
+        }
+        $('#txt_DpName').focus();
+        if (ValidateDeliveryPartner() == true) {
+            $.ajax({
+                type: 'post',
+                dataType: 'JSON',
+                url: '../Master/MstrDeliveryPartnerIUD',
+                data: {
+                    'Dp_Id': $('#hdnId').val(),
+                    'Dp_Name': $('#txt_DpName').val(), 'Dp_PhNo': $('#txt_DpPhNo').val(),
+                    'Dp_Email': $('#txt_DpEmail').val(), 'Gender': $('#ddl_DpGender').val(),
+                    'Area_Id': $('#ddl_Area').val(), 'Join_Date': $('#Dt_JoinDate').val(),
+                    'Addrs': $('#txt_Addrs').val(), 'Action': action
+                },
+                success: function (res) {
+                    debugger;
+                    if (res == 'Delivery Partner E_mail And Phone Number Already Exist.Duplicate Not Allowed') {
+                        $('#txt_DpPhNo').focus()
+                        $('#txt_DpEmail').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'Delivery Partner Email And Phone Number Already Exist.Duplicate Not Allowed'
+                        })
+                        return false;
+                    }
+                    else if (res == 'Delivery Partner Phone Number  Already Exist.Duplicate Not Allowed') {
+                        $('#txt_DpPhNo').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+
+                            text: 'Delivery Partner Phone Number  Already Exist.Duplicate Not Allowed'
+                        })
+                        return false;
+                    }
+                    else if (res == 'Delivery Partner Email Already Exist.Duplicate Not Allowed') {
+                        $('#txt_DpEmail').focus();
+                        Swal.fire({
+                            icon: 'info',
+                            title: 'Info',
+                            text: 'Delivery Partner Email Already Exist.Duplicate Not Allowed'
+                        })
+                        return false;
+                    }
+                    else if (res == 'Delivery Partner Master Created Successfully') {
+                        ClearDeliveryPartner();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: res,
+                            didOpen: () => {
+                                // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                setTimeout(() => {
+                                    const okButton = document.querySelector('.swal2-confirm');
+                                    if (okButton) {
+                                        okButton.focus();
+                                    }
+                                }, 0);
+                            },
+                        })
+                    }
+                    else if (res == 'Delivery Partner Master Modified Successfully') {
+                        ClearDeliveryPartner();
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated',
+                            text: res,
+                            didOpen: () => {
+                                // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                                setTimeout(() => {
+                                    const okButton = document.querySelector('.swal2-confirm');
+                                    if (okButton) {
+                                        okButton.focus();
+                                    }
+                                }, 0);
+                            },
+                        })
+                    }
+                    else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops',
+                            text: res
+                        })
+                        ClearDeliveryPartner();
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                }
+            });
+        }
+    }
+    function ValidateDeliveryPartner() {
+        if ($('#txt_DpName').val() === "") {
+            $('#txt_DpName').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Delivery Partner Name cannot be  blank!!'
+            });
+            return false;
+        }
+        if ($('#txt_DpPhNo')) {
+            if ($('#txt_DpPhNo').val() === "") {
+                $('#txt_DpPhNo').focus();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'PhoneNo cannot be bLank!!'
+                });
+                return false;
+            }
+            var regex = /^[0-9]+$/;
+            if (!regex.test($('#txt_DpPhNo').val())) {
+                $('#txt_DpPhNo').focus();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'PhoneNo cannot contain characters!!'
+                });
+                return false;
+            }
+            if ($('#txt_DpPhNo').val().length > 10) {
+                $('#txt_DpPhNo').focus();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'PhoneNo cannot exceed ten digit!!'
+                });
+                return false;
+            }
+            if ($('#txt_DpPhNo').val().length < 10) {
+                $('#txt_DpPhNo').focus();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'PhoneNo cannot less than ten digit!!'
+                });
+                return false;
+            }
+        }
+        if ($('#txt_DpEmail')) {
+            if ($('#txt_DpEmail').val() === "") {
+                $('#txt_DpEmail').focus();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'Email cannot be  blank!!'
+                });
+                return false;
+            }
+            var emailPattern = /^[^\s@@]+@@[^\s@@]+\.[a-zA-Z]{2,}$/;
+            if (!emailPattern.test($('#txt_DpEmail').val())) {
+                $('#txt_DpEmail').focus();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Info',
+                    text: 'please enter valid email address!!'
+                });
+                return false;
+            }
+        }
+        if ($('#ddl_DpGender').val() === "") {
+            $('#ddl_DpGender').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Gender cannot be  blank!!'
+            });
+            return false;
+        }
+        if ($('#ddl_Area').val() === "") {
+            $('#ddl_Area').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Area cannot be  blank!!'
+            });
+            return false;
+        }
+        if ($('#Dt_JoinDate').val() === "") {
+            $('#Dt_JoinDate').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Join Date cannot be  blank!!',
+                didClose: () => {
+                    // Use a timeout to ensure the Swal modal is rendered before attempting to set focus
+                    setTimeout(() => {
+                        const okButton = document.querySelector('.swal2-confirm');
+                        if (okButton) {
+                            okButton.focus();
+                        }
+                        $('#Dt_JoinDate').focus();
+                    }, 0);
+                },
+            });
+            return false;
+        }
+        if ($('#txt_Addrs').val() === "") {
+            $('#txt_Addrs').focus();
+            Swal.fire({
+                icon: 'info',
+                title: 'Info',
+                text: 'Address cannot be blank!!'
+            });
+            return false;
+        }
+        return true;
+    }
+    //ClearUser
+    function ClearDeliveryPartner() {
+        $('#txt_DpName').val('');
+        $('#txt_DpPhNo').val('');
+        $('#txt_DpEmail').val('');
+        $('#ddl_DpGender').val('');
+        $('#ddl_Area').val('').trigger('change');
+        $('#txt_Addrs').val('');
+        $('#btn_submit').text('SUBMIT');
+        $('#txt_DpName').focus();
+        $("#btn_submit").text("SUBMIT")
+    }
+    //   --------------------------------- Edit start-----------------------------------------
+    function return_id(par) {
+        var canEdit = @Html.Raw(Json.Encode(canWrite1));
+         if (!canEdit) {
+            Swal.fire({
+            icon: 'error',
+            title: 'Oops',
+            text: 'YOU HAVE NO PERMISSION FOR EDIT!'
+            });
+            return;
+         }
+        $('#tab1').addClass('active');
+        $('#tab2').removeClass('active').addClass('closed');
+        $('#content1').show();
+        $('#content2').hide();
+        $.ajax(
+            {
+                url: '/Master/DeliveryPartnerEdit?Id=' + par, // Replace with your controller and action
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    $('#hdnId').val(par);
+                    $('#txt_DpName').focus();
+                    $('#txt_DpName').val(data.Dp_Name);
+                    $('#txt_DpPhNo').val(data.Dp_PhNo);
+                    $('#txt_DpEmail').val(data.Dp_Email);
+                    $('#ddl_DpGender').val(data.Gender);
+                    $('#ddl_Area').val(data.Area_Id).trigger('change');
+                    $('#Dt_JoinDate').val(data.Join_Date);
+                    $('#txt_Addrs').val(data.Addrs);
+                    $("#btn_submit").text('UPDATE');
+                },
+                error: function () {
+                    console.log('Error loading data.');
+                }
+            });
+
+    }
+    //------------------------------------Edit End here--------------------------------------------
+    //----------------------DELIVERY partner DELETE-----------------------------------------------
+    function delete_id(par) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
+                var consumer = {
+                    'Dp_Id': par,
+                    'Action': 'DELETE'
+                };
+                $.ajax({
+                    url: '/Master/MstrDeliveryPartnerIUD',
+                    data: JSON.stringify(consumer),
+                    type: 'post',
+                    dataType: 'json',
+                    contentType: 'application/json',
+                    success: function (res) {
+                        if (res === "Delivery Partner Master Deleted Successfully") {
+                            Swal.fire({
+                                icon: 'success',
+                                title: "Delete",
+                                text: "Delivery Partner Deleted Successfully"
+                            });
+                            setTimeout(function () {
+                                initializeDataTable();
+                                $('#content1').hide();
+                                $('#content2').show();
+                            }, 0);
+                        }
+                        else if (res === "YOU HAVE NO PERMISSION FOR DELETE!") {
+                            Swal.fire({
+                                icon: 'error',
+                                title: "Opss",
+                                text: res
+                            });
+                        }
+                        else {
+                            alert(res);
+                        }
+                    },
+                    error: function (err) {
+                        alert(err);
+                    }
+                });
+            }
+        });
+    }
+</script>
